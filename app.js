@@ -1,13 +1,15 @@
-// ========== CONFIGURATION ==========
+// ===============================
+// CONFIGURATION
+// ===============================
 const CONFIG = {
-  GAS_URL: 'https://script.google.com/macros/s/AKfycbxMA6T-1wZDzB-rapZkj4RBLTenisbeOtTubDiFDcSexlRX9cyRVSPCy6JV_au3TlwA/exec', // Deploy કર્યા પછી અહીં URL મૂકો
-  GRADES: ['બાલવાટિકા', 'ધોરણ - 1', 'ધોરણ - 2', 'ધોરણ - 3', 'ધોરણ - 4',
-           'ધોરણ - 5', 'ધોરણ - 6', 'ધોરણ - 7', 'ધોરણ - 8', 'ધોરણ - 9',
-           'ધોરણ - 10', 'ધોરણ - 11', 'ધોરણ - 12'],
-  SUBJECTS: ['ગુજરાતી', 'અંગ્રેજી', 'હિન્દી', 'સંસ્કૃત', 'ગણિત', 'વિજ્ઞાન', 'સામાજિક વિજ્ઞાન']
+  GAS_URL: 'https://script.google.com/macros/s/AKfycbxfIISpICADecHgCPm3ltthCS07KSnrvFxYmSdy3Qm-Qtfh2K1vfCy3lKUujbx_KL2M/exec',
+  GRADES: [],
+  SUBJECTS: []
 };
 
-// ========== STATE ==========
+// ===============================
+// STATE
+// ===============================
 let state = {
   currentUser: null,
   currentScreen: 'splash',
@@ -16,27 +18,36 @@ let state = {
   selectedTab: 'sms',
   students: [],
   examMarks: {},
-  currentStudentForMarks: null
+  currentStudentForMarks: null,
+  availableGrades: []
 };
 
-// ========== INITIALIZATION ==========
+// ===============================
+// INIT
+// ===============================
 document.addEventListener('DOMContentLoaded', init);
 
 function init() {
-  // Service Worker (PWA)
-  if ('serviceWorker' in navigator) {
+  if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
     navigator.serviceWorker.register('sw.js')
-      .then(() => console.log('SW registered'))
       .catch(err => console.log('SW registration failed', err));
   }
-  
+
   loadSavedTemplates();
   initGradeDropdowns();
   addEventListeners();
+
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  const splash = document.getElementById('splash-screen');
+  if (splash) splash.classList.add('active');
+  state.currentScreen = 'splash';
+
   checkLogin();
 }
 
-// ========== EVENT LISTENERS ==========
+// ===============================
+// EVENT LISTENERS
+// ===============================
 function addEventListeners() {
   document.querySelectorAll('.back-btn').forEach(btn => {
     btn.addEventListener('click', goBack);
@@ -90,6 +101,14 @@ function addEventListeners() {
   document.getElementById('removeBtn').addEventListener('click', confirmRemoveStudents);
   document.getElementById('removeGrade').addEventListener('change', loadStudentsForRemoval);
   
+  // File upload click area
+  const fileUploadArea = document.getElementById('fileUploadArea');
+  const fileInput = document.getElementById('studentFile');
+  if (fileUploadArea && fileInput) {
+    fileUploadArea.addEventListener('click', () => fileInput.click());
+    fileInput.addEventListener('change', handleFileSelect);
+  }
+  
   document.getElementById('saveLanguageBtn').addEventListener('click', saveLanguage);
   document.getElementById('saveTemplatesBtn').addEventListener('click', saveTemplates);
   document.getElementById('resetTemplatesBtn').addEventListener('click', resetTemplates);
@@ -108,7 +127,24 @@ function addEventListeners() {
   document.getElementById('confirmCancel').addEventListener('click', hideConfirmDialog);
 }
 
-// ========== DEVICE ID ==========
+// ===============================
+// FILE SELECT HANDLER
+// ===============================
+function handleFileSelect(e) {
+  const file = e.target.files[0];
+  const fileText = document.getElementById('fileUploadText');
+  if (file) {
+    fileText.textContent = `📎 ${file.name}`;
+    fileText.style.color = '#4F46E5';
+  } else {
+    fileText.textContent = 'ફાઈલ અહીં ડ્રોપ કરો અથવા ક્લિક કરો';
+    fileText.style.color = '';
+  }
+}
+
+// ===============================
+// DEVICE ID
+// ===============================
 function getDeviceId() {
   let deviceId = localStorage.getItem('smp_deviceId');
   if (!deviceId) {
@@ -118,62 +154,64 @@ function getDeviceId() {
   return deviceId;
 }
 
-// ========== API CALLS ==========
+// ===============================
+// API CALL
+// ===============================
 async function callGAS(action, data = {}) {
   try {
     const response = await fetch(CONFIG.GAS_URL, {
       method: 'POST',
       mode: 'cors',
       headers: { 'Content-Type': 'text/plain' },
-      body: JSON.stringify({ action, ...data })
+      body: JSON.stringify({ action, ...data }),
+      redirect: 'follow'
     });
-    return await response.json();
+    
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+    }
+    
+    const result = await response.json();
+    return result;
   } catch (error) {
     console.error('API Error:', error);
-    return { success: false, message: error.toString() };
+    return { success: false, message: 'Server connection failed. Please check your internet.' };
   }
 }
 
-// ========== LOGIN / SPLASH ==========
+// ===============================
+// LOGIN FLOW + SPLASH
+// ===============================
 async function checkLogin() {
   const deviceId = getDeviceId();
-  
-  if (!CONFIG.GAS_URL || CONFIG.GAS_URL === 'YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL') {
-    hideSplash();
-    showScreen('registration');
-    loadDemoData();
-    return;
-  }
-  
+
   showLoading();
   const result = await callGAS('checkDeviceLogin', { deviceId });
   hideLoading();
-  hideSplash();
   
-  if (result.success) {
+  hideSplash();
+
+  if (result.success && result.user) {
     state.currentUser = result.user;
+    showToast('Automatic login સફળ!');
     showDashboard();
   } else {
     showScreen('registration');
-    loadDistricts();
+    await loadDistricts();
   }
 }
 
 function hideSplash() {
   const splash = document.getElementById('splash-screen');
-  if (splash) splash.classList.remove('active');
+  if (splash) {
+    splash.classList.remove('active');
+    splash.style.display = 'none';
+  }
 }
 
-// ========== DEMO DATA ==========
-function loadDemoData() {
-  const districts = ['અમદાવાદ', 'રાજકોટ', 'સુરત', 'વડોદરા', 'ભાવનગર'];
-  const select = document.getElementById('district');
-  districts.forEach(d => {
-    select.innerHTML += `<option value="${d}">${d}</option>`;
-  });
-}
-
-// ========== SCREEN NAVIGATION ==========
+// ===============================
+// SCREEN NAVIGATION
+// ===============================
 function showScreen(screenId) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   const screen = document.getElementById(screenId + '-screen');
@@ -223,11 +261,14 @@ function showDashboard() {
     document.getElementById('userName').textContent = state.currentUser.teacherName;
     document.getElementById('schoolInfo').textContent =
       state.currentUser.schoolName + ' • DISE: ' + state.currentUser.schoolDISE;
+    showToast(`નમસ્તે ${state.currentUser.teacherName}!`);
   }
   showScreen('dashboard');
 }
 
-// ========== TABS ==========
+// ===============================
+// TAB HANDLING
+// ===============================
 function handleTabClick(tab, container) {
   container.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
   tab.classList.add('active');
@@ -236,11 +277,13 @@ function handleTabClick(tab, container) {
   if (screenId === 'absent') renderStudentList('absent');
 }
 
-// ========== REGISTRATION ==========
+// ===============================
+// REGISTRATION
+// ===============================
 async function registerUser() {
   const mobile = document.getElementById('mobile').value.trim();
-  const email = document.getElementById('email').value.trim();
-  const dise = document.getElementById('schoolDISE').value.trim();
+  const email  = document.getElementById('email').value.trim();
+  const dise   = document.getElementById('schoolDISE').value.trim();
   
   if (mobile.length !== 10) {
     showToast('મોબાઈલ નંબર 10 અંકનો હોવો જોઈએ');
@@ -262,8 +305,8 @@ async function registerUser() {
     schoolDISE: dise,
     schoolName: document.getElementById('schoolName').value.trim(),
     district: document.getElementById('district').value,
-    taluka: document.getElementById('taluka').value,
-    city: document.getElementById('city').value,
+    taluka:   document.getElementById('taluka').value,
+    city:     document.getElementById('city').value,
     deviceId: getDeviceId()
   };
   
@@ -274,19 +317,12 @@ async function registerUser() {
     }
   }
   
-  if (!CONFIG.GAS_URL || CONFIG.GAS_URL === 'YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL') {
-    state.currentUser = { ...data, schoolSheetId: 'DEMO_SHEET_ID' };
-    showToast('Demo mode: Registration local છે');
-    showDashboard();
-    return;
-  }
-  
   showLoading();
   const result = await callGAS('registerUser', data);
   hideLoading();
   
   if (result.success) {
-    showToast(result.message || 'રજિસ્ટ્રેશન સફળ!');
+    showToast('રજિસ્ટ્રેશન સફળ! કૃપા કરીને Email verify કરો.');
     state.currentUser = {
       ...data,
       schoolSheetId: result.schoolSheetId
@@ -297,18 +333,22 @@ async function registerUser() {
   }
 }
 
-// ========== LOCATION ==========
+// ===============================
+// LOCATION
+// ===============================
 async function loadDistricts() {
-  if (!CONFIG.GAS_URL || CONFIG.GAS_URL === 'YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL') {
-    loadDemoData();
-    return;
-  }
+  showLoading();
   const result = await callGAS('getDistricts');
-  if (result.success && result.data) {
+  hideLoading();
+  
+  if (result.success && result.data && result.data.length) {
     const select = document.getElementById('district');
+    select.innerHTML = '<option value="">જિલ્લો પસંદ કરો</option>';
     result.data.forEach(d => {
       select.innerHTML += `<option value="${d}">${d}</option>`;
     });
+  } else {
+    showToast('જિલ્લા લોડ ન થયા. પછી try કરો.');
   }
 }
 
@@ -320,14 +360,10 @@ async function loadTalukas() {
   
   if (!district) return;
   
-  if (!CONFIG.GAS_URL || CONFIG.GAS_URL === 'YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL') {
-    ['તાલુકો 1', 'તાલુકો 2', 'તાલુકો 3'].forEach(t => {
-      talukaSelect.innerHTML += `<option value="${t}">${t}</option>`;
-    });
-    return;
-  }
-  
+  showLoading();
   const result = await callGAS('getTalukas', { district });
+  hideLoading();
+  
   if (result.success && result.data) {
     result.data.forEach(t => {
       talukaSelect.innerHTML += `<option value="${t}">${t}</option>`;
@@ -342,14 +378,10 @@ async function loadCities() {
   
   if (!taluka) return;
   
-  if (!CONFIG.GAS_URL || CONFIG.GAS_URL === 'YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL') {
-    ['ગામ 1', 'ગામ 2', 'ગામ 3'].forEach(c => {
-      citySelect.innerHTML += `<option value="${c}">${c}</option>`;
-    });
-    return;
-  }
-  
+  showLoading();
   const result = await callGAS('getCities', { taluka });
+  hideLoading();
+  
   if (result.success && result.data) {
     result.data.forEach(c => {
       citySelect.innerHTML += `<option value="${c}">${c}</option>`;
@@ -357,15 +389,34 @@ async function loadCities() {
   }
 }
 
-// ========== GRADES & STUDENTS (DEMO) ==========
-function loadGradeStrip(screenId) {
+// ===============================
+// GRADES STRIP
+// ===============================
+async function loadGradeStrip(screenId) {
   const strip = document.getElementById(screenId + 'GradeStrip');
   if (!strip) return;
   
-  const grades = ['ધોરણ - 1', 'ધોરણ - 2', 'ધોરણ - 3'];
+  if (!state.currentUser || !state.currentUser.schoolSheetId) {
+    showToast('User માહિતી missing છે.');
+    return;
+  }
+  
+  showLoading();
+  const result = await callGAS('getAvailableGrades', { 
+    schoolSheetId: state.currentUser.schoolSheetId 
+  });
+  hideLoading();
+  
+  if (!result.success || !result.data || result.data.length === 0) {
+    showToast('કોઈ ધોરણ ઉપલબ્ધ નથી.');
+    strip.innerHTML = '<p style="color:#888;">કોઈ વિદ્યાર્થી નથી.</p>';
+    return;
+  }
+  
+  state.availableGrades = result.data;
   strip.innerHTML = '';
   
-  grades.forEach((grade, index) => {
+  state.availableGrades.forEach((grade, index) => {
     const btn = document.createElement('button');
     btn.className = 'grade-btn' + (index === 0 ? ' active' : '');
     btn.textContent = grade;
@@ -378,18 +429,34 @@ function loadGradeStrip(screenId) {
     strip.appendChild(btn);
   });
   
-  if (grades.length > 0) {
-    state.currentGrade = grades[0];
-    loadStudentsForScreen(screenId, grades[0]);
+  if (state.availableGrades.length > 0) {
+    state.currentGrade = state.availableGrades[0];
+    loadStudentsForScreen(screenId, state.availableGrades[0]);
   }
 }
 
-function loadStudentsForScreen(screenId, grade) {
-  state.students = [
-    { id: '1', name: 'પટેલ હરेश', mobile: '9876543210', attendance: 'present' },
-    { id: '2', name: 'શાહ મહેશ', mobile: '9876543211', attendance: 'present' },
-    { id: '3', name: 'દવે રાજેશ', mobile: '9876543212', attendance: 'present' }
-  ];
+// ===============================
+// STUDENTS LIST
+// ===============================
+async function loadStudentsForScreen(screenId, grade) {
+  showLoading();
+  const result = await callGAS('getStudentsByGrade', {
+    schoolSheetId: state.currentUser.schoolSheetId,
+    grade
+  });
+  hideLoading();
+  
+  if (result.success && result.data) {
+    state.students = result.data.map(s => ({
+      id: s.id,
+      name: s.name,
+      mobile: s.mobile,
+      attendance: 'present'
+    }));
+  } else {
+    state.students = [];
+  }
+  
   renderStudentList(screenId);
   if (screenId === 'homework') loadHomeworkSubjects();
 }
@@ -398,6 +465,11 @@ function renderStudentList(screenId) {
   const list = document.getElementById(screenId + 'StudentList');
   if (!list) return;
   list.innerHTML = '';
+  
+  if (state.students.length === 0) {
+    list.innerHTML = '<p style="text-align:center; padding:20px;">કોઈ વિદ્યાર્થી નથી.</p>';
+    return;
+  }
   
   state.students.forEach((student, index) => {
     const item = document.createElement('div');
@@ -471,7 +543,9 @@ function setAttendance(index, status) {
   renderStudentList(state.currentScreen);
 }
 
-// ========== MESSAGING ==========
+// ===============================
+// MESSAGING – ABSENT
+// ===============================
 function sendAbsentMessages() {
   const absentStudents = state.students.filter(s => s.attendance === 'absent');
   if (absentStudents.length === 0) {
@@ -505,6 +579,9 @@ function makeCall(mobile) {
   window.open(`tel:${mobile}`);
 }
 
+// ===============================
+// MESSAGING – TEST MARKS
+// ===============================
 function sendTestMarks() {
   const subject = document.getElementById('testSubject').value;
   const date = document.getElementById('testDate').value;
@@ -553,13 +630,23 @@ function sendTestMarks() {
   showToast('માર્ક્સ મોકલાઈ રહ્યા છે...');
 }
 
-// ========== HOMEWORK ==========
-function loadHomeworkSubjects() {
+// ===============================
+// HOMEWORK
+// ===============================
+async function loadHomeworkSubjects() {
   const container = document.getElementById('homeworkSubjects');
   if (!container) return;
-  const subjects = [...CONFIG.SUBJECTS, 'અન્ય'];
-  container.innerHTML = '';
   
+  showLoading();
+  const result = await callGAS('getSubjects');
+  hideLoading();
+  
+  let subjects = ['અન્ય'];
+  if (result.success && result.data) {
+    subjects = [...result.data, 'અન્ય'];
+  }
+  
+  container.innerHTML = '';
   subjects.forEach(subject => {
     const item = document.createElement('div');
     item.className = 'subject-item';
@@ -617,7 +704,9 @@ function sendHomework() {
   showToast('હોમવર્ક મોકલાઈ રહ્યું છે...');
 }
 
-// ========== OTHER MESSAGE ==========
+// ===============================
+// OTHER MESSAGE
+// ===============================
 function sendOtherMessage() {
   const message = document.getElementById('customMessage').value;
   if (!message) {
@@ -636,17 +725,33 @@ function sendOtherMessage() {
   showToast('મેસેજ મોકલાઈ રહ્યા છે...');
 }
 
-// ========== FINAL EXAM ==========
+// ===============================
+// FINAL EXAM
+// ===============================
 function openStudentEntry(student) {
   state.screenHistory.push('finalexam');
   showScreen('studententry');
   document.getElementById('studentEntryName').textContent = student.name;
   state.currentStudentForMarks = student;
   
+  loadSubjectsForExam();
+}
+
+async function loadSubjectsForExam() {
   const container = document.getElementById('subjectMarksInputs');
   container.innerHTML = '';
-  CONFIG.SUBJECTS.forEach(subject => {
-    const savedMarks = state.examMarks[student.id]?.[subject] || '';
+  
+  showLoading();
+  const result = await callGAS('getSubjects');
+  hideLoading();
+  
+  let subjects = [];
+  if (result.success && result.data) {
+    subjects = result.data;
+  }
+  
+  subjects.forEach(subject => {
+    const savedMarks = state.examMarks[state.currentStudentForMarks.id]?.[subject] || '';
     container.innerHTML += `
       <div class="subject-marks-row">
         <label>${subject}</label>
@@ -654,6 +759,7 @@ function openStudentEntry(student) {
       </div>
     `;
   });
+  
   container.innerHTML += `
     <div class="subject-marks-row">
       <label><input type="checkbox" id="otherSubjectCheck"> અન્ય</label>
@@ -707,7 +813,7 @@ function sendFinalExamMarks() {
   const savedCount = Object.keys(state.examMarks).length;
   const status = document.getElementById('examStatus');
   if (savedCount < state.students.length) {
-    status.textContent = `${savedCount}/${state.students.length} વિદ્યાર્થીઓના માર્ક્સ સેવ થયા. બાકીના પણ સેવ કરો.`;
+    if (status) status.textContent = `${savedCount}/${state.students.length} વિદ્યાર્થીઓના માર્ક્સ સેવ થયા. બાકીના પણ સેવ કરો.`;
     showToast('પહેલા બધા વિદ્યાર્થીઓના માર્ક્સ સેવ કરો');
     return;
   }
@@ -747,19 +853,33 @@ function sendFinalExamMarks() {
   showToast('પરિણામ મોકલાઈ રહ્યું છે...');
 }
 
-// ========== STUDENT MANAGEMENT ==========
-function initGradeDropdowns() {
-  const gradeOptions = CONFIG.GRADES.map(g => `<option value="${g}">${g}</option>`).join('');
-  ['quickStudentGrade', 'importGrade', 'removeGrade'].forEach(id => {
+// ===============================
+// STUDENT MANAGEMENT
+// ===============================
+async function initGradeDropdowns() {
+  if (!state.currentUser || !state.currentUser.schoolSheetId) return;
+  
+  showLoading();
+  const result = await callGAS('getAllGrades');
+  hideLoading();
+  
+  let grades = [];
+  if (result.success && result.data) {
+    grades = result.data;
+  }
+  
+  const gradeOptions = grades.map(g => `<option value="${g}">${g}</option>`).join('');
+  ['quickStudentGrade','removeGrade'].forEach(id => {
     const select = document.getElementById(id);
     if (select) select.innerHTML = `<option value="">ધોરણ પસંદ કરો</option>${gradeOptions}`;
   });
 }
 
-function quickAddStudent() {
-  const name = document.getElementById('quickStudentName').value;
-  const mobile = document.getElementById('quickStudentMobile').value;
+async function quickAddStudent() {
+  const name = document.getElementById('quickStudentName').value.trim();
+  const mobile = document.getElementById('quickStudentMobile').value.trim();
   const grade = document.getElementById('quickStudentGrade').value;
+  
   if (!name || !mobile || !grade) {
     showToast('બધી માહિતી ભરો');
     return;
@@ -768,9 +888,23 @@ function quickAddStudent() {
     showToast('મોબાઈલ નંબર 10 અંકનો હોવો જોઈએ');
     return;
   }
-  showToast('વિદ્યાર્થી ઉમેરાયો! (Demo)');
-  document.getElementById('quickStudentName').value = '';
-  document.getElementById('quickStudentMobile').value = '';
+  
+  showLoading();
+  const result = await callGAS('addStudent', {
+    schoolSheetId: state.currentUser.schoolSheetId,
+    grade,
+    name,
+    mobile
+  });
+  hideLoading();
+  
+  if (result.success) {
+    showToast('વિદ્યાર્થી ઉમેરાયો!');
+    document.getElementById('quickStudentName').value = '';
+    document.getElementById('quickStudentMobile').value = '';
+  } else {
+    showToast(result.message || 'Error');
+  }
 }
 
 function downloadTemplate() {
@@ -783,58 +917,137 @@ function downloadTemplate() {
   showToast('Template downloaded!');
 }
 
-function importStudents() {
-  const file = document.getElementById('studentFile').files[0];
-  const grade = document.getElementById('importGrade').value;
-  if (!file || !grade) {
-    showToast('ફાઈલ અને ધોરણ પસંદ કરો');
+async function importStudents() {
+  const fileInput = document.getElementById('studentFile');
+  const file = fileInput.files[0];
+  
+  if (!file) {
+    showToast('ફાઈલ પસંદ કરો');
     return;
   }
-  showToast('વિદ્યાર્થીઓ આયાત થયા! (Demo)');
+  
+  showLoading();
+  
+  try {
+    const reader = new FileReader();
+    reader.onload = async (e) => {
+      try {
+        const arrayBuffer = e.target.result;
+        const bytes = new Uint8Array(arrayBuffer);
+        let binary = '';
+        for (let i = 0; i < bytes.length; i++) {
+          binary += String.fromCharCode(bytes[i]);
+        }
+        const base64 = btoa(binary);
+        
+        const result = await callGAS('importStudentsFromExcel', {
+          schoolSheetId: state.currentUser.schoolSheetId,
+          fileData: base64,
+          replaceAll: document.querySelector('input[name="importOption"]:checked').value === 'replace'
+        });
+        
+        hideLoading();
+        
+        if (result.success) {
+          showToast(result.message || 'વિદ્યાર્થીઓ import થયા!');
+          
+          // Clear file input + reset display
+          fileInput.value = '';
+          const fileText = document.getElementById('fileUploadText');
+          if (fileText) {
+            fileText.textContent = 'ફાઈલ અહીં ડ્રોપ કરો અથવા ક્લિક કરો';
+            fileText.style.color = '';
+          }
+        } else {
+          showToast(result.message || 'Import failed');
+        }
+      } catch (err) {
+        hideLoading();
+        console.error('File read error:', err);
+        showToast('ફાઈલ વાંચતા error આવ્યો. ફરી try કરો.');
+      }
+    };
+    
+    reader.onerror = () => {
+      hideLoading();
+      showToast('ફાઈલ વાંચતા error આવ્યો.');
+    };
+    
+    reader.readAsArrayBuffer(file);
+  } catch (err) {
+    hideLoading();
+    console.error('Import error:', err);
+    showToast('Import failed. Please try again.');
+  }
 }
 
-function loadGradesForRemoval() {
-  // dropdown પહેલેથી initGradeDropdowns માં ભરાઈ જાય છે
+async function loadGradesForRemoval() {
+  await initGradeDropdowns();
 }
 
-function loadStudentsForRemoval() {
+async function loadStudentsForRemoval() {
   const grade = document.getElementById('removeGrade').value;
   if (!grade) return;
+  
+  showLoading();
+  const result = await callGAS('getStudentsByGrade', {
+    schoolSheetId: state.currentUser.schoolSheetId,
+    grade
+  });
+  hideLoading();
+  
   const list = document.getElementById('removeStudentList');
   list.innerHTML = '';
-  const students = [
-    { id: '1', name: 'પટેલ હરેશ', mobile: '9876543210' },
-    { id: '2', name: 'શાહ મહેશ', mobile: '9876543211' }
-  ];
-  students.forEach(student => {
-    list.innerHTML += `
-      <div class="student-item">
-        <input type="checkbox" class="student-checkbox" value="${student.id}">
-        <div class="student-info">
-          <h4>${student.name}</h4>
-          <span>${student.mobile}</span>
+  
+  if (result.success && result.data) {
+    result.data.forEach(student => {
+      list.innerHTML += `
+        <div class="student-item">
+          <input type="checkbox" class="student-checkbox" value="${student.id}">
+          <div class="student-info">
+            <h4>${student.name}</h4>
+            <span>${student.mobile}</span>
+          </div>
         </div>
-      </div>
-    `;
-  });
+      `;
+    });
+  }
 }
 
-function confirmRemoveStudents() {
+async function confirmRemoveStudents() {
   const checkboxes = document.querySelectorAll('#removeStudentList .student-checkbox:checked');
   if (checkboxes.length === 0) {
     showToast('વિદ્યાર્થીઓ પસંદ કરો');
     return;
   }
+  
+  const ids = Array.from(checkboxes).map(c => c.value);
+  const grade = document.getElementById('removeGrade').value;
+  
   showConfirmDialog(
     'શું ખરેખર આ વિદ્યાર્થીઓને ડિલીટ કરવા માંગો છો? એકવાર ડિલીટ થયા પછી પાછા લાવી શકાશે નહીં.',
-    () => {
-      showToast('વિદ્યાર્થીઓ દૂર થયા! (Demo)');
-      loadStudentsForRemoval();
+    async () => {
+      showLoading();
+      const result = await callGAS('removeStudents', {
+        schoolSheetId: state.currentUser.schoolSheetId,
+        grade,
+        studentIds: ids
+      });
+      hideLoading();
+      
+      if (result.success) {
+        showToast('વિદ્યાર્થીઓ દૂર થયા!');
+        loadStudentsForRemoval();
+      } else {
+        showToast(result.message || 'Error');
+      }
     }
   );
 }
 
-// ========== SETTINGS ==========
+// ===============================
+// SETTINGS
+// ===============================
 function loadSavedTemplates() {
   const templates = {
     absentTemplate: 'આજે તારીખ ({date}) {name} શાળામાં ગેરહાજર હતા. તો આપનું બાળક રોજ શાળામાં હાજર રહે તેવી નમ્ર વિનંતી, (શ્રી {school}).',
@@ -858,8 +1071,8 @@ function saveLanguage() {
 }
 
 function saveTemplates() {
-  const templateIds = ['absentTemplate', 'marksTemplate', 'testAbsentTemplate', 
-                       'homeworkTemplate', 'finalExamTemplate', 'finalAbsentTemplate'];
+  const templateIds = ['absentTemplate','marksTemplate','testAbsentTemplate',
+                       'homeworkTemplate','finalExamTemplate','finalAbsentTemplate'];
   templateIds.forEach(id => {
     const textarea = document.getElementById(id);
     if (textarea) localStorage.setItem('smp_' + id, textarea.value);
@@ -868,54 +1081,78 @@ function saveTemplates() {
 }
 
 function resetTemplates() {
-  const templateIds = ['absentTemplate', 'marksTemplate', 'testAbsentTemplate', 
-                       'homeworkTemplate', 'finalExamTemplate', 'finalAbsentTemplate'];
+  const templateIds = ['absentTemplate','marksTemplate','testAbsentTemplate',
+                       'homeworkTemplate','finalExamTemplate','finalAbsentTemplate'];
   templateIds.forEach(id => localStorage.removeItem('smp_' + id));
   loadSavedTemplates();
   showToast('Templates રીસેટ થયા!');
 }
 
-// ========== SUBJECTS / HELPER / CONTACT ==========
-function loadSubjects() {
+// ===============================
+// SUBJECTS / HELPER / CONTACT
+// ===============================
+async function loadSubjects() {
   const select = document.getElementById('testSubject');
   if (!select) return;
   select.innerHTML = '<option value="">વિષય પસંદ કરો</option>';
-  CONFIG.SUBJECTS.forEach(s => {
-    select.innerHTML += `<option value="${s}">${s}</option>`;
-  });
+  
+  showLoading();
+  const result = await callGAS('getSubjects');
+  hideLoading();
+  
+  if (result.success && result.data) {
+    result.data.forEach(s => {
+      select.innerHTML += `<option value="${s}">${s}</option>`;
+    });
+  }
 }
 
-function loadTeacherHelper() {
+async function loadTeacherHelper() {
   const list = document.getElementById('helperList');
   list.innerHTML = '';
-  const helpers = [
-    { title: 'SAS Gujarat', link: 'https://sas.gujarat.gov.in' },
-    { title: 'SSA Gujarat', link: 'https://ssagujarat.org' },
-    { title: 'GCERT', link: 'https://gcert.gujarat.gov.in' },
-    { title: 'Diksha App', link: 'https://diksha.gov.in' }
-  ];
-  helpers.forEach(item => {
-    list.innerHTML += `
-      <a class="helper-item" href="${item.link}" target="_blank">
-        <span>${item.title}</span>
-        <span class="material-icons">open_in_new</span>
-      </a>
-    `;
-  });
+  
+  showLoading();
+  const result = await callGAS('getTeacherHelper');
+  hideLoading();
+  
+  if (result.success && result.data) {
+    result.data.forEach(item => {
+      list.innerHTML += `
+        <a class="helper-item" href="${item.link}" target="_blank">
+          <span>${item.title}</span>
+          <span class="material-icons">open_in_new</span>
+        </a>
+      `;
+    });
+  }
 }
 
-function loadContactInfo() {
-  document.getElementById('emailSupport').href = 'mailto:support@example.com';
-  document.getElementById('whatsappSupport').href = 'https://wa.me/919876543210';
-  const socialLinks = document.getElementById('socialLinks');
-  socialLinks.innerHTML = `
-    <a href="https://facebook.com" target="_blank"><img src="https://cdn-icons-png.flaticon.com/32/733/733547.png" alt="Facebook"></a>
-    <a href="https://instagram.com" target="_blank"><img src="https://cdn-icons-png.flaticon.com/32/2111/2111463.png" alt="Instagram"></a>
-    <a href="https://youtube.com" target="_blank"><img src="https://cdn-icons-png.flaticon.com/32/1384/1384060.png" alt="YouTube"></a>
-  `;
+async function loadContactInfo() {
+  showLoading();
+  const result = await callGAS('getContactInfo');
+  hideLoading();
+  
+  if (result.success && result.data) {
+    document.getElementById('emailSupport').href = `mailto:${result.data.email || 'support@example.com'}`;
+    document.getElementById('whatsappSupport').href = `https://wa.me/${result.data.whatsapp || '919876543210'}`;
+    
+    const socialLinks = document.getElementById('socialLinks');
+    socialLinks.innerHTML = '';
+    if (result.data.facebook) {
+      socialLinks.innerHTML += `<a href="${result.data.facebook}" target="_blank"><img src="https://cdn-icons-png.flaticon.com/32/733/733547.png" alt="Facebook"></a>`;
+    }
+    if (result.data.instagram) {
+      socialLinks.innerHTML += `<a href="${result.data.instagram}" target="_blank"><img src="https://cdn-icons-png.flaticon.com/32/2111/2111463.png" alt="Instagram"></a>`;
+    }
+    if (result.data.youtube) {
+      socialLinks.innerHTML += `<a href="${result.data.youtube}" target="_blank"><img src="https://cdn-icons-png.flaticon.com/32/1384/1384060.png" alt="YouTube"></a>`;
+    }
+  }
 }
 
-// ========== UI UTILITIES ==========
+// ===============================
+// UI UTILITIES
+// ===============================
 function showLoading() {
   document.getElementById('loadingOverlay').classList.add('show');
 }
