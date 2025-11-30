@@ -1,0 +1,1044 @@
+/* ========== ROOT VARIABLES ========== */
+:root {
+  --primary: #4F46E5;
+  --primary-dark: #4338CA;
+  --secondary: #10B981;
+  --danger: #EF4444;
+  --warning: #F59E0B;
+  --bg: #F3F4F6;
+  --card-bg: #FFFFFF;
+  --text: #1F2937;
+  --text-light: #6B7280;
+  --border: #E5E7EB;
+  --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  --radius: 12px;
+}
+
+/* ========== RESET ========== */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Noto Sans Gujarati', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  -webkit-tap-highlight-color: transparent;
+  overflow-x: hidden;
+}
+
+#app {
+  max-width: 480px;
+  margin: 0 auto;
+  min-height: 100vh;
+  background: var(--bg);
+  position: relative;
+}
+
+/* ========== SCREENS ========== */
+.screen {
+  display: none;
+  min-height: 100vh;
+  padding-bottom: 100px;
+}
+
+.screen.active {
+  display: block;
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* ========== SPLASH SCREEN ========== */
+#splash-screen {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+  padding-bottom: 0;
+}
+
+.splash-content {
+  text-align: center;
+  color: white;
+}
+
+.app-icon {
+  width: 100px;
+  height: 100px;
+  background: white;
+  border-radius: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 20px;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+}
+
+.app-icon .material-icons {
+  font-size: 56px;
+  color: var(--primary);
+}
+
+.splash-content h1 {
+  font-size: 24px;
+  margin-bottom: 24px;
+}
+
+.splash-text {
+  margin-top: 16px;
+  opacity: 0.8;
+}
+
+.loader {
+  width: 40px;
+  height: 40px;
+  border: 3px solid rgba(255,255,255,0.3);
+  border-top-color: white;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin: 0 auto;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ========== HEADERS ========== */
+.header {
+  background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+  padding: 40px 20px 30px;
+  text-align: center;
+  color: white;
+  border-radius: 0 0 24px 24px;
+}
+
+.header h1 {
+  font-size: 22px;
+  margin-bottom: 8px;
+}
+
+.header p {
+  opacity: 0.9;
+  font-size: 14px;
+}
+
+.dashboard-header {
+  background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+  padding: 20px;
+  color: white;
+  border-radius: 0 0 24px 24px;
+}
+
+.app-title {
+  font-size: 20px;
+  font-weight: 600;
+  margin-bottom: 12px;
+}
+
+.user-info {
+  background: rgba(255,255,255,0.15);
+  padding: 12px 16px;
+  border-radius: 12px;
+}
+
+.greeting {
+  display: block;
+  font-size: 16px;
+  font-weight: 500;
+}
+
+.school-info {
+  display: block;
+  font-size: 12px;
+  opacity: 0.9;
+  margin-top: 4px;
+}
+
+.screen-header {
+  display: flex;
+  align-items: center;
+  padding: 16px;
+  background: var(--card-bg);
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.back-btn {
+  width: 40px;
+  height: 40px;
+  border: none;
+  background: var(--bg);
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  margin-right: 12px;
+  transition: background 0.2s;
+}
+
+.back-btn:active {
+  background: var(--border);
+}
+
+.screen-header h2 {
+  font-size: 18px;
+  font-weight: 600;
+}
+
+/* ========== FORMS ========== */
+.form-container {
+  padding: 20px;
+}
+
+.input-group {
+  margin-bottom: 16px;
+}
+
+.input-group label {
+  display: block;
+  font-size: 14px;
+  font-weight: 500;
+  margin-bottom: 6px;
+  color: var(--text);
+}
+
+.input-group input,
+.input-group select,
+.input-group textarea {
+  width: 100%;
+  padding: 14px 16px;
+  border: 2px solid var(--border);
+  border-radius: var(--radius);
+  font-size: 15px;
+  font-family: inherit;
+  transition: border-color 0.2s;
+  background: white;
+}
+
+.input-group input:focus,
+.input-group select:focus,
+.input-group textarea:focus {
+  outline: none;
+  border-color: var(--primary);
+}
+
+/* ========== BUTTONS ========== */
+.btn-primary {
+  width: 100%;
+  padding: 16px;
+  background: var(--primary);
+  color: white;
+  border: none;
+  border-radius: var(--radius);
+  font-size: 16px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: background 0.2s, transform 0.1s;
+}
+
+.btn-primary:hover {
+  background: var(--primary-dark);
+}
+
+.btn-primary:active {
+  transform: scale(0.98);
+}
+
+.btn-outline {
+  padding: 12px 20px;
+  background: transparent;
+  color: var(--primary);
+  border: 2px solid var(--primary);
+  border-radius: var(--radius);
+  font-size: 14px;
+  font-weight: 500;
+  font-family: inherit;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.btn-danger {
+  width: 100%;
+  padding: 16px;
+  background: var(--danger);
+  color: white;
+  border: none;
+  border-radius: var(--radius);
+  font-size: 16px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.btn-send {
+  width: 100%;
+  padding: 14px;
+  background: var(--secondary);
+  color: white;
+  border: none;
+  border-radius: var(--radius);
+  font-size: 15px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+/* ========== CARD GRID ========== */
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  padding: 20px;
+}
+
+.card {
+  background: var(--card-bg);
+  border-radius: var(--radius);
+  padding: 16px 12px;
+  text-align: center;
+  box-shadow: var(--shadow);
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+.card:active {
+  transform: scale(0.95);
+}
+
+.card-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 8px;
+}
+
+.card-icon .material-icons {
+  font-size: 26px;
+  color: white;
+}
+
+.card-icon.absent { background: linear-gradient(135deg, #EF4444, #DC2626); }
+.card-icon.marks { background: linear-gradient(135deg, #3B82F6, #2563EB); }
+.card-icon.homework { background: linear-gradient(135deg, #8B5CF6, #7C3AED); }
+.card-icon.other { background: linear-gradient(135deg, #10B981, #059669); }
+.card-icon.exam { background: linear-gradient(135deg, #F59E0B, #D97706); }
+.card-icon.students { background: linear-gradient(135deg, #EC4899, #DB2777); }
+.card-icon.settings { background: linear-gradient(135deg, #6B7280, #4B5563); }
+.card-icon.helper { background: linear-gradient(135deg, #14B8A6, #0D9488); }
+.card-icon.contact { background: linear-gradient(135deg, #6366F1, #4F46E5); }
+
+.card-title {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--text);
+}
+
+/* ========== TABS ========== */
+.tabs {
+  display: flex;
+  background: var(--card-bg);
+  padding: 8px;
+  gap: 8px;
+  position: sticky;
+  top: 72px;
+  z-index: 99;
+}
+
+.tab {
+  flex: 1;
+  padding: 12px;
+  border: none;
+  background: var(--bg);
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.tab.active {
+  background: var(--primary);
+  color: white;
+}
+
+/* ========== STUDENT LIST ========== */
+.student-list {
+  padding: 12px;
+  max-height: calc(100vh - 280px);
+  overflow-y: auto;
+}
+
+.student-item {
+  background: var(--card-bg);
+  border-radius: var(--radius);
+  padding: 14px;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.student-item.saved {
+  background: #D1FAE5;
+}
+
+.student-info h4 {
+  font-size: 15px;
+  font-weight: 500;
+  margin-bottom: 2px;
+}
+
+.student-info span {
+  font-size: 12px;
+  color: var(--text-light);
+}
+
+.attendance-btns {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.att-btn {
+  width: 36px;
+  height: 36px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 600;
+  transition: all 0.2s;
+}
+
+.att-btn.present {
+  background: #D1FAE5;
+  color: #059669;
+}
+
+.att-btn.present.active {
+  background: #10B981;
+  color: white;
+}
+
+.att-btn.absent {
+  background: #FEE2E2;
+  color: #DC2626;
+}
+
+.att-btn.absent.active {
+  background: #EF4444;
+  color: white;
+}
+
+.call-btn {
+  width: 44px;
+  height: 44px;
+  border: none;
+  border-radius: 50%;
+  background: var(--secondary);
+  color: white;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.marks-input {
+  width: 60px;
+  padding: 8px;
+  border: 2px solid var(--border);
+  border-radius: 8px;
+  text-align: center;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+/* ========== BOTTOM SECTION ========== */
+.bottom-section {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  max-width: 480px;
+  margin: 0 auto;
+  background: var(--card-bg);
+  padding: 12px;
+  border-top: 1px solid var(--border);
+  z-index: 100;
+}
+
+/* ========== GRADE STRIP ========== */
+.grade-strip {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding: 8px 0;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+
+.grade-strip::-webkit-scrollbar {
+  display: none;
+}
+
+.grade-btn {
+  flex-shrink: 0;
+  padding: 10px 16px;
+  background: var(--bg);
+  border: none;
+  border-radius: 20px;
+  font-size: 13px;
+  font-family: inherit;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s;
+}
+
+.grade-btn.active {
+  background: var(--primary);
+  color: white;
+}
+
+/* ========== MARKS HEADER ========== */
+.marks-header {
+  display: flex;
+  gap: 8px;
+  padding: 12px;
+  background: var(--card-bg);
+  flex-wrap: wrap;
+}
+
+.marks-header select,
+.marks-header input {
+  flex: 1;
+  min-width: 100px;
+  padding: 10px;
+  border: 2px solid var(--border);
+  border-radius: 8px;
+  font-family: inherit;
+}
+
+/* ========== SECTION CARDS ========== */
+.section-card {
+  background: var(--card-bg);
+  border-radius: var(--radius);
+  padding: 20px;
+  margin: 12px;
+  box-shadow: var(--shadow);
+}
+
+.section-card h3 {
+  font-size: 16px;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* ========== FILE UPLOAD ========== */
+.file-upload {
+  border: 2px dashed var(--border);
+  border-radius: var(--radius);
+  padding: 30px;
+  text-align: center;
+  margin: 16px 0;
+  cursor: pointer;
+  position: relative;
+  transition: border-color 0.2s;
+}
+
+.file-upload:hover {
+  border-color: var(--primary);
+}
+
+.file-upload input {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.file-upload .material-icons {
+  font-size: 40px;
+  color: var(--primary);
+}
+
+.file-upload p {
+  margin-top: 8px;
+  color: var(--text-light);
+}
+
+/* ========== RADIO OPTIONS ========== */
+.radio-option {
+  display: flex;
+  flex-direction: column;
+  padding: 12px;
+  border: 2px solid var(--border);
+  border-radius: var(--radius);
+  margin-bottom: 10px;
+  cursor: pointer;
+  transition: border-color 0.2s;
+}
+
+.radio-option:has(input:checked) {
+  border-color: var(--primary);
+  background: rgba(79, 70, 229, 0.05);
+}
+
+.radio-option input {
+  position: absolute;
+  opacity: 0;
+}
+
+.radio-option span {
+  font-weight: 500;
+}
+
+.radio-option small {
+  font-size: 12px;
+  color: var(--text-light);
+  margin-top: 4px;
+}
+
+/* ========== HOMEWORK SUBJECTS ========== */
+.homework-subjects {
+  padding: 12px;
+}
+
+.subject-item {
+  background: var(--card-bg);
+  border-radius: var(--radius);
+  padding: 14px;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.subject-checkbox {
+  width: 24px;
+  height: 24px;
+  accent-color: var(--primary);
+  margin-top: 4px;
+}
+
+.subject-name {
+  font-weight: 500;
+  min-width: 100px;
+}
+
+.subject-input {
+  flex: 1;
+  min-width: 150px;
+  padding: 10px;
+  border: 2px solid var(--border);
+  border-radius: 8px;
+  font-family: inherit;
+  display: none;
+}
+
+.subject-input.show {
+  display: block;
+}
+
+/* ========== MESSAGE BOX ========== */
+.message-box {
+  padding: 12px;
+}
+
+.message-box textarea {
+  width: 100%;
+  padding: 16px;
+  border: 2px solid var(--border);
+  border-radius: var(--radius);
+  font-size: 15px;
+  font-family: inherit;
+  resize: vertical;
+  min-height: 120px;
+}
+
+/* ========== TEMPLATE CARDS ========== */
+.template-card {
+  background: var(--card-bg);
+  border-radius: var(--radius);
+  padding: 16px;
+  margin: 12px;
+}
+
+.template-card h4 {
+  font-size: 14px;
+  margin-bottom: 10px;
+  color: var(--primary);
+}
+
+.template-card textarea {
+  width: 100%;
+  padding: 12px;
+  border: 2px solid var(--border);
+  border-radius: 8px;
+  font-size: 13px;
+  font-family: inherit;
+  resize: vertical;
+  min-height: 80px;
+}
+
+.template-actions {
+  display: flex;
+  gap: 12px;
+  padding: 12px;
+}
+
+.template-actions button {
+  flex: 1;
+}
+
+/* ========== ATTENDANCE TOGGLE ========== */
+.attendance-toggle {
+  display: flex;
+  gap: 12px;
+  padding: 16px;
+  justify-content: center;
+}
+
+.toggle-option {
+  cursor: pointer;
+}
+
+.toggle-option input {
+  display: none;
+}
+
+.toggle-btn {
+  padding: 12px 24px;
+  border-radius: 20px;
+  font-weight: 500;
+  display: inline-block;
+  transition: all 0.2s;
+}
+
+.toggle-btn.present {
+  background: #D1FAE5;
+  color: #059669;
+}
+
+.toggle-btn.absent {
+  background: #FEE2E2;
+  color: #DC2626;
+}
+
+.toggle-option input:checked + .toggle-btn.present {
+  background: #10B981;
+  color: white;
+}
+
+.toggle-option input:checked + .toggle-btn.absent {
+  background: #EF4444;
+  color: white;
+}
+
+/* ========== MARKS ENTRY ========== */
+.marks-entry {
+  padding: 16px;
+}
+
+.marks-entry h3 {
+  font-size: 16px;
+  margin-bottom: 16px;
+}
+
+.subject-marks-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.subject-marks-row label {
+  flex: 1;
+  font-weight: 500;
+}
+
+.subject-marks-row input {
+  width: 80px;
+  padding: 10px;
+  border: 2px solid var(--border);
+  border-radius: 8px;
+  text-align: center;
+  font-size: 16px;
+}
+
+.save-marks-btn {
+  margin: 20px 16px;
+}
+
+/* ========== EXAM STATUS ========== */
+.exam-status {
+  background: var(--card-bg);
+  padding: 12px 16px;
+  margin: 12px;
+  border-radius: var(--radius);
+  font-size: 14px;
+  color: var(--text-light);
+  text-align: center;
+}
+
+/* ========== CONTACT ========== */
+.contact-options {
+  padding: 20px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.contact-card {
+  background: var(--card-bg);
+  border-radius: var(--radius);
+  padding: 24px 16px;
+  text-align: center;
+  text-decoration: none;
+  color: var(--text);
+  box-shadow: var(--shadow);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.contact-card .material-icons {
+  font-size: 32px;
+  color: var(--primary);
+}
+
+.social-section {
+  padding: 20px;
+}
+
+.social-section h3 {
+  font-size: 16px;
+  margin-bottom: 16px;
+}
+
+.social-links {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.social-links a {
+  width: 50px;
+  height: 50px;
+  background: var(--card-bg);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--shadow);
+}
+
+.social-links img {
+  width: 28px;
+  height: 28px;
+}
+
+/* ========== HELPER LIST ========== */
+.helper-list {
+  padding: 12px;
+}
+
+.helper-item {
+  background: var(--card-bg);
+  border-radius: var(--radius);
+  padding: 16px;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  text-decoration: none;
+  color: var(--text);
+  box-shadow: var(--shadow);
+}
+
+.helper-item .material-icons {
+  color: var(--primary);
+}
+
+/* ========== SETTINGS ========== */
+.settings-section {
+  padding: 16px;
+}
+
+.settings-section h3 {
+  font-size: 18px;
+  margin-bottom: 8px;
+}
+
+.settings-section > p {
+  color: var(--text-light);
+  margin-bottom: 16px;
+}
+
+.language-options {
+  margin-bottom: 20px;
+}
+
+/* ========== TEMPLATE DOWNLOAD ========== */
+.template-download {
+  margin-bottom: 16px;
+}
+
+.template-download p {
+  font-weight: 500;
+  margin-bottom: 8px;
+}
+
+.template-download small {
+  display: block;
+  margin-top: 8px;
+  color: var(--text-light);
+}
+
+/* ========== TOAST ========== */
+.toast {
+  position: fixed;
+  bottom: 120px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #333;
+  color: white;
+  padding: 14px 24px;
+  border-radius: 8px;
+  font-size: 14px;
+  z-index: 1001;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s;
+  max-width: 90%;
+  text-align: center;
+}
+
+.toast.show {
+  opacity: 1;
+}
+
+/* ========== LOADING ========== */
+.loading-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 1002;
+}
+
+.loading-overlay.show {
+  display: flex;
+}
+
+.spinner {
+  width: 50px;
+  height: 50px;
+  border: 4px solid rgba(255,255,255,0.3);
+  border-top-color: white;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+/* ========== DIALOG ========== */
+.dialog-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 1003;
+  padding: 20px;
+}
+
+.dialog-overlay.show {
+  display: flex;
+}
+
+.dialog {
+  background: white;
+  border-radius: var(--radius);
+  padding: 24px;
+  max-width: 320px;
+  width: 100%;
+}
+
+.dialog p {
+  margin-bottom: 20px;
+  line-height: 1.5;
+}
+
+.dialog-actions {
+  display: flex;
+  gap: 12px;
+}
+
+.dialog-actions button {
+  flex: 1;
+  padding: 12px;
+}
+
+/* ========== CHECKBOX ========== */
+.student-checkbox {
+  width: 22px;
+  height: 22px;
+  accent-color: var(--danger);
+}
+
+/* ========== RESPONSIVE ========== */
+@media (max-width: 380px) {
+  .card-grid {
+    gap: 8px;
+    padding: 12px;
+  }
+  
+  .card {
+    padding: 12px 8px;
+  }
+  
+  .card-icon {
+    width: 40px;
+    height: 40px;
+  }
+  
+  .card-title {
+    font-size: 10px;
+  }
+}

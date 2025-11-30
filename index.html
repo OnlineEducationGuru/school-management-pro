@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="gu">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#4F46E5">
+  <meta name="description" content="School Management Pro - શાળા વ્યવસ્થાપન એપ">
+  
+  <!-- PWA -->
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="icons/icon-192.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  
+  <title>School Management Pro</title>
+  
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Gujarati:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  
+  <!-- CSS -->
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="app">
+    
+    <!-- Splash Screen -->
+    <div id="splash-screen" class="screen active">
+      <div class="splash-content">
+        <div class="app-icon">
+          <span class="material-icons">school</span>
+        </div>
+        <h1>School Management Pro</h1>
+        <div class="loader"></div>
+        <p class="splash-text">Loading...</p>
+      </div>
+    </div>
+
+    <!-- Registration Screen -->
+    <div id="registration-screen" class="screen">
+      <div class="header">
+        <h1>School Management Pro</h1>
+        <p>શિક્ષક રજિસ્ટ્રેશન</p>
+      </div>
+      <div class="form-container">
+        <div class="input-group">
+          <label>શિક્ષકનું નામ *</label>
+          <input type="text" id="teacherName" placeholder="શિક્ષકનું નામ લખો">
+        </div>
+        <div class="input-group">
+          <label>મોબાઈલ નંબર *</label>
+          <input type="tel" id="mobile" placeholder="10 અંકનો મોબાઈલ નંબર" maxlength="10" inputmode="numeric">
+        </div>
+        <div class="input-group">
+          <label>ઈમેલ *</label>
+          <input type="email" id="email" placeholder="example@gmail.com">
+        </div>
+        <div class="input-group">
+          <label>School DISE Code *</label>
+          <input type="text" id="schoolDISE" placeholder="11 અંકનો DISE Code" maxlength="11" inputmode="numeric">
+        </div>
+        <div class="input-group">
+          <label>શાળાનું નામ *</label>
+          <input type="text" id="schoolName" placeholder="શાળાનું નામ લખો">
+        </div>
+        <div class="input-group">
+          <label>જિલ્લો *</label>
+          <select id="district">
+            <option value="">જિલ્લો પસંદ કરો</option>
+          </select>
+        </div>
+        <div class="input-group">
+          <label>તાલુકો *</label>
+          <select id="taluka">
+            <option value="">તાલુકો પસંદ કરો</option>
+          </select>
+        </div>
+        <div class="input-group">
+          <label>ગામ/શહેર *</label>
+          <select id="city">
+            <option value="">ગામ/શહેર પસંદ કરો</option>
+          </select>
+        </div>
+        <button class="btn-primary" id="registerBtn">
+          <span class="material-icons">person_add</span>
+          રજિસ્ટર કરો
+        </button>
+      </div>
+    </div>
+
+    <!-- Main Dashboard -->
+    <div id="dashboard-screen" class="screen">
+      <div class="dashboard-header">
+        <div class="app-title">School Management Pro</div>
+        <div class="user-info">
+          <span class="greeting">નમસ્તે, <span id="userName"></span></span>
+          <span class="school-info" id="schoolInfo"></span>
+        </div>
+      </div>
+      
+      <div class="card-grid">
+        <div class="card" data-screen="absent">
+          <div class="card-icon absent"><span class="material-icons">person_off</span></div>
+          <span class="card-title">Absent Message</span>
+        </div>
+        <div class="card" data-screen="testmarks">
+          <div class="card-icon marks"><span class="material-icons">grading</span></div>
+          <span class="card-title">Test Marks</span>
+        </div>
+        <div class="card" data-screen="homework">
+          <div class="card-icon homework"><span class="material-icons">menu_book</span></div>
+          <span class="card-title">Homework</span>
+        </div>
+        <div class="card" data-screen="othermsg">
+          <div class="card-icon other"><span class="material-icons">chat</span></div>
+          <span class="card-title">Other Message</span>
+        </div>
+        <div class="card" data-screen="finalexam">
+          <div class="card-icon exam"><span class="material-icons">emoji_events</span></div>
+          <span class="card-title">Final Exam</span>
+        </div>
+        <div class="card" data-screen="students">
+          <div class="card-icon students"><span class="material-icons">groups</span></div>
+          <span class="card-title">Update Students</span>
+        </div>
+        <div class="card" data-screen="settings">
+          <div class="card-icon settings"><span class="material-icons">settings</span></div>
+          <span class="card-title">Settings</span>
+        </div>
+        <div class="card" data-screen="helper">
+          <div class="card-icon helper"><span class="material-icons">help_outline</span></div>
+          <span class="card-title">Teacher Helper</span>
+        </div>
+        <div class="card" data-screen="contact">
+          <div class="card-icon contact"><span class="material-icons">contact_support</span></div>
+          <span class="card-title">Contact Us</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Absent Message Screen -->
+    <div id="absent-screen" class="screen">
+      <div class="screen-header">
+        <button class="back-btn"><span class="material-icons">arrow_back</span></button>
+        <h2>Absent Message</h2>
+      </div>
+      <div class="tabs">
+        <button class="tab active" data-tab="sms">SMS</button>
+        <button class="tab" data-tab="whatsapp">WhatsApp</button>
+        <button class="tab" data-tab="call">Call</button>
+      </div>
+      <div class="student-list" id="absentStudentList"></div>
+      <div class="bottom-section">
+        <button class="btn-send" id="absentSendBtn"><span class="material-icons">send</span> મેસેજ મોકલો</button>
+        <div class="grade-strip" id="absentGradeStrip"></div>
+      </div>
+    </div>
+
+    <!-- Test Marks Screen -->
+    <div id="testmarks-screen" class="screen">
+      <div class="screen-header">
+        <button class="back-btn"><span class="material-icons">arrow_back</span></button>
+        <h2>Test Marks</h2>
+      </div>
+      <div class="tabs">
+        <button class="tab active" data-tab="sms">SMS</button>
+        <button class="tab" data-tab="whatsapp">WhatsApp</button>
+      </div>
+      <div class="marks-header">
+        <select id="testSubject"><option value="">વિષય પસંદ કરો</option></select>
+        <input type="date" id="testDate">
+        <input type="number" id="totalMarks" placeholder="કુલ માર્ક્સ">
+      </div>
+      <div class="student-list" id="testmarksStudentList"></div>
+      <div class="bottom-section">
+        <button class="btn-send" id="testmarksSendBtn"><span class="material-icons">send</span> માર્ક્સ મોકલો</button>
+        <div class="grade-strip" id="testmarksGradeStrip"></div>
+      </div>
+    </div>
+
+    <!-- Homework Screen -->
+    <div id="homework-screen" class="screen">
+      <div class="screen-header">
+        <button class="back-btn"><span class="material-icons">arrow_back</span></button>
+        <h2>Homework</h2>
+      </div>
+      <div class="tabs">
+        <button class="tab active" data-tab="sms">SMS</button>
+        <button class="tab" data-tab="whatsapp">WhatsApp</button>
+      </div>
+      <div class="homework-subjects" id="homeworkSubjects"></div>
+      <div class="bottom-section">
+        <button class="btn-send" id="homeworkSendBtn"><span class="material-icons">send</span> હોમવર્ક મોકલો</button>
+        <div class="grade-strip" id="homeworkGradeStrip"></div>
+      </div>
+    </div>
+
+    <!-- Other Message Screen -->
+    <div id="othermsg-screen" class="screen">
+      <div class="screen-header">
+        <button class="back-btn"><span class="material-icons">arrow_back</span></button>
+        <h2>Other Message</h2>
+      </div>
+      <div class="tabs">
+        <button class="tab active" data-tab="sms">SMS</button>
+        <button class="tab" data-tab="whatsapp">WhatsApp</button>
+      </div>
+      <div class="message-box">
+        <textarea id="customMessage" placeholder="અહીં મેસેજ લખો..." rows="5"></textarea>
+      </div>
+      <div class="bottom-section">
+        <button class="btn-send" id="othermsgSendBtn"><span class="material-icons">send</span> મેસેજ મોકલો</button>
+        <div class="grade-strip" id="othermsgGradeStrip"></div>
+      </div>
+    </div>
+
+    <!-- Final Exam Screen -->
+    <div id="finalexam-screen" class="screen">
+      <div class="screen-header">
+        <button class="back-btn"><span class="material-icons">arrow_back</span></button>
+        <h2>Final Exam</h2>
+      </div>
+      <div class="tabs">
+        <button class="tab active" data-tab="sms">SMS</button>
+        <button class="tab" data-tab="whatsapp">WhatsApp</button>
+      </div>
+      <div class="exam-status" id="examStatus"></div>
+      <div class="student-list" id="finalexamStudentList"></div>
+      <div class="bottom-section">
+        <button class="btn-send" id="finalexamSendBtn"><span class="material-icons">send</span> બધાને માર્ક્સ મોકલો</button>
+        <div class="grade-strip" id="finalexamGradeStrip"></div>
+      </div>
+    </div>
+
+    <!-- Student Entry Screen -->
+    <div id="studententry-screen" class="screen">
+      <div class="screen-header">
+        <button class="back-btn"><span class="material-icons">arrow_back</span></button>
+        <h2 id="studentEntryName"></h2>
+      </div>
+      <div class="attendance-toggle">
+        <label class="toggle-option">
+          <input type="radio" name="studentAttendance" value="present" checked>
+          <span class="toggle-btn present">હાજર</span>
+        </label>
+        <label class="toggle-option">
+          <input type="radio" name="studentAttendance" value="absent">
+          <span class="toggle-btn absent">ગેરહાજર</span>
+        </label>
+      </div>
+      <div class="marks-entry" id="marksEntrySection">
+        <h3>માર્ક્સ દાખલ કરો</h3>
+        <div id="subjectMarksInputs"></div>
+        <div class="input-group">
+          <label>કુલ ગુણ (દરેક વિષય માટે)</label>
+          <input type="number" id="examTotalMarks" placeholder="100">
+        </div>
+      </div>
+      <button class="btn-primary save-marks-btn" id="saveMarksBtn">
+        <span class="material-icons">save</span> માર્ક્સ સેવ કરો
+      </button>
+    </div>
+
+    <!-- Update Students Screen -->
+    <div id="students-screen" class="screen">
+      <div class="screen-header">
+        <button class="back-btn"><span class="material-icons">arrow_back</span></button>
+        <h2>Update Students</h2>
+      </div>
+      <div class="tabs">
+        <button class="tab active" data-tab="import">Import Students</button>
+        <button class="tab" data-tab="remove">Remove Students</button>
+      </div>
+      
+      <div id="importSection" class="student-section">
+        <div class="section-card">
+          <h3><span class="material-icons">person_add</span> Quick Add Student</h3>
+          <div class="input-group">
+            <input type="text" id="quickStudentName" placeholder="વિદ્યાર્થીનું નામ">
+          </div>
+          <div class="input-group">
+            <input type="tel" id="quickStudentMobile" placeholder="મોબાઈલ નંબર" maxlength="10">
+          </div>
+          <div class="input-group">
+            <select id="quickStudentGrade"></select>
+          </div>
+          <button class="btn-primary" id="quickAddBtn">
+            <span class="material-icons">add</span> Add Student
+          </button>
+        </div>
+        
+        <div class="section-card">
+          <h3><span class="material-icons">upload_file</span> Import from Excel/CSV</h3>
+          <div class="template-download">
+            <p>Excel Template</p>
+            <button class="btn-outline" id="downloadTemplateBtn">
+              <span class="material-icons">download</span> Click Here
+            </button>
+            <small>Excel ડાઉનલોડ કરો અને તેમાં વિદ્યાર્થીઓના નામ નાખીને અપલોડ કરો</small>
+          </div>
+          <div class="file-upload" id="fileUploadArea">
+            <span class="material-icons">cloud_upload</span>
+            <p>ફાઈલ અહીં ડ્રોપ કરો અથવા ક્લિક કરો</p>
+            <input type="file" id="studentFile" accept=".xlsx,.xls,.csv">
+          </div>
+          <div class="import-options">
+            <label class="radio-option">
+              <input type="radio" name="importOption" value="replace">
+              <span>Replace All Students</span>
+              <small>અગાઉના બધા વિદ્યાર્થીઓ દૂર કરી નવા ઉમેરો</small>
+            </label>
+            <label class="radio-option">
+              <input type="radio" name="importOption" value="add" checked>
+              <span>Add New Students</span>
+              <small>અગાઉના વિદ્યાર્થીઓ રાખીને નવા ઉમેરો</small>
+            </label>
+          </div>
+          <div class="input-group">
+            <select id="importGrade"></select>
+          </div>
+          <button class="btn-primary" id="importBtn">
+            <span class="material-icons">publish</span> Import
+          </button>
+        </div>
+      </div>
+      
+      <div id="removeSection" class="student-section" style="display:none;">
+        <div class="section-card">
+          <div class="input-group">
+            <select id="removeGrade"></select>
+          </div>
+          <div class="student-list" id="removeStudentList"></div>
+          <button class="btn-danger" id="removeBtn">
+            <span class="material-icons">delete</span> Remove Selected Students
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Settings Screen -->
+    <div id="settings-screen" class="screen">
+      <div class="screen-header">
+        <button class="back-btn"><span class="material-icons">arrow_back</span></button>
+        <h2>Settings</h2>
+      </div>
+      <div class="tabs">
+        <button class="tab active" data-tab="language">Language</button>
+        <button class="tab" data-tab="message">Message</button>
+      </div>
+      
+      <div id="languageSection" class="settings-section">
+        <h3>Select App Language</h3>
+        <p>બધા સંદેશાઓ આ ભાષામાં મોકલાશે</p>
+        <div class="language-options">
+          <label class="radio-option"><input type="radio" name="language" value="gujarati" checked><span>ગુજરાતી</span></label>
+          <label class="radio-option"><input type="radio" name="language" value="english"><span>English</span></label>
+          <label class="radio-option"><input type="radio" name="language" value="hindi"><span>हिन्दी</span></label>
+        </div>
+        <button class="btn-primary" id="saveLanguageBtn"><span class="material-icons">save</span> Save Language</button>
+      </div>
+      
+      <div id="messageSection" class="settings-section" style="display:none;">
+        <div class="template-card">
+          <h4>Absent Message Template</h4>
+          <textarea id="absentTemplate">આજે તારીખ ({date}) {name} શાળામાં ગેરહાજર હતા. તો આપનું બાળક રોજ શાળામાં હાજર રહે તેવી નમ્ર વિનંતી, (શ્રી {school}).</textarea>
+        </div>
+        <div class="template-card">
+          <h4>Marks Message Template</h4>
+          <textarea id="marksTemplate">આજે તારીખ({date}) {subject} ની ટેસ્ટમાં {name} ના માર્ક્સ: {marks}/{total}, (શ્રી {school}).</textarea>
+        </div>
+        <div class="template-card">
+          <h4>TEST Message (Absent)</h4>
+          <textarea id="testAbsentTemplate">આજે તારીખ({date}) {subject} ની ટેસ્ટમાં {name} ગેરહાજર હતા, (શ્રી {school}).</textarea>
+        </div>
+        <div class="template-card">
+          <h4>Homework Message Template</h4>
+          <textarea id="homeworkTemplate">આજે તારીખ ({date}) ના રોજ આજનું હોમવર્ક: {subjects}, (શ્રી {school}).</textarea>
+        </div>
+        <div class="template-card">
+          <h4>Final Exam Message Template</h4>
+          <textarea id="finalExamTemplate">વિદ્યાર્થી: {name} નું પ્રથમ સત્રાંત પરીક્ષાનું પરિણામ: {marks}, (શ્રી {school}).</textarea>
+        </div>
+        <div class="template-card">
+          <h4>Final Exam Absent Message</h4>
+          <textarea id="finalAbsentTemplate">વિદ્યાર્થી: {name} પ્રથમ સત્રાંત પરીક્ષામાં ગેરહાજર હતા, (શ્રી {school}).</textarea>
+        </div>
+        <div class="template-actions">
+          <button class="btn-outline" id="resetTemplatesBtn"><span class="material-icons">refresh</span> Reset</button>
+          <button class="btn-primary" id="saveTemplatesBtn"><span class="material-icons">save</span> Save</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Teacher Helper Screen -->
+    <div id="helper-screen" class="screen">
+      <div class="screen-header">
+        <button class="back-btn"><span class="material-icons">arrow_back</span></button>
+        <h2>Teacher Helper</h2>
+      </div>
+      <div class="helper-list" id="helperList"></div>
+    </div>
+
+    <!-- Contact Us Screen -->
+    <div id="contact-screen" class="screen">
+      <div class="screen-header">
+        <button class="back-btn"><span class="material-icons">arrow_back</span></button>
+        <h2>Contact Us</h2>
+      </div>
+      <div class="contact-options">
+        <a class="contact-card" id="emailSupport"><span class="material-icons">email</span><span>Email Support</span></a>
+        <a class="contact-card" id="whatsappSupport"><span class="material-icons">chat</span><span>WhatsApp Support</span></a>
+      </div>
+      <div class="social-section">
+        <h3>Follow Us</h3>
+        <div class="social-links" id="socialLinks"></div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Toast -->
+  <div id="toast" class="toast"></div>
+  
+  <!-- Loading -->
+  <div id="loadingOverlay" class="loading-overlay">
+    <div class="spinner"></div>
+  </div>
+
+  <!-- Confirm Dialog -->
+  <div id="confirmDialog" class="dialog-overlay">
+    <div class="dialog">
+      <p id="confirmMessage"></p>
+      <div class="dialog-actions">
+        <button class="btn-outline" id="confirmCancel">રદ કરો</button>
+        <button class="btn-danger" id="confirmOk">હા, ડિલીટ કરો</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

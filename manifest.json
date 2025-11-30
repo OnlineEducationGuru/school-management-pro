@@ -1,0 +1,24 @@
+{
+  "name": "School Management Pro",
+  "short_name": "SMS Pro",
+  "description": "શાળા વ્યવસ્થાપન એપ",
+  "start_url": "/index.html",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "theme_color": "#4F46E5",
+  "background_color": "#F3F4F6",
+  "lang": "gu",
+  "icons": [
+    {
+      "src": "icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
