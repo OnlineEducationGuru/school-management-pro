@@ -23,34 +23,25 @@ let state = {
 document.addEventListener('DOMContentLoaded', init);
 
 function init() {
-  // Register Service Worker for PWA
+  // Service Worker (PWA)
   if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('sw.js')
-      .then(reg => console.log('SW registered'))
-      .catch(err => console.log('SW registration failed'));
+      .then(() => console.log('SW registered'))
+      .catch(err => console.log('SW registration failed', err));
   }
   
-  // Load saved templates
   loadSavedTemplates();
-  
-  // Initialize grade dropdowns
   initGradeDropdowns();
-  
-  // Add event listeners
   addEventListeners();
-  
-  // Check login after delay
-  setTimeout(checkLogin, 1500);
+  checkLogin();
 }
 
 // ========== EVENT LISTENERS ==========
 function addEventListeners() {
-  // Back buttons
   document.querySelectorAll('.back-btn').forEach(btn => {
     btn.addEventListener('click', goBack);
   });
   
-  // Cards
   document.querySelectorAll('.card').forEach(card => {
     card.addEventListener('click', () => {
       const screen = card.dataset.screen;
@@ -58,69 +49,62 @@ function addEventListeners() {
     });
   });
   
-  // Tabs
   document.querySelectorAll('.tabs').forEach(tabContainer => {
     tabContainer.querySelectorAll('.tab').forEach(tab => {
       tab.addEventListener('click', () => handleTabClick(tab, tabContainer));
     });
   });
   
-  // Registration
   document.getElementById('registerBtn').addEventListener('click', registerUser);
   document.getElementById('district').addEventListener('change', loadTalukas);
   document.getElementById('taluka').addEventListener('change', loadCities);
   
-  // Students screen tabs
-  document.querySelector('#students-screen .tabs').addEventListener('click', (e) => {
-    if (e.target.classList.contains('tab')) {
+  const studentTabs = document.querySelector('#students-screen .tabs');
+  if (studentTabs) {
+    studentTabs.addEventListener('click', (e) => {
+      if (!e.target.classList.contains('tab')) return;
       const tab = e.target.dataset.tab;
+      studentTabs.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      e.target.classList.add('active');
       document.getElementById('importSection').style.display = tab === 'import' ? 'block' : 'none';
       document.getElementById('removeSection').style.display = tab === 'remove' ? 'block' : 'none';
       if (tab === 'remove') loadStudentsForRemoval();
-    }
-  });
+    });
+  }
   
-  // Settings screen tabs
-  document.querySelector('#settings-screen .tabs').addEventListener('click', (e) => {
-    if (e.target.classList.contains('tab')) {
+  const settingsTabs = document.querySelector('#settings-screen .tabs');
+  if (settingsTabs) {
+    settingsTabs.addEventListener('click', (e) => {
+      if (!e.target.classList.contains('tab')) return;
       const tab = e.target.dataset.tab;
+      settingsTabs.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      e.target.classList.add('active');
       document.getElementById('languageSection').style.display = tab === 'language' ? 'block' : 'none';
       document.getElementById('messageSection').style.display = tab === 'message' ? 'block' : 'none';
-    }
-  });
+    });
+  }
   
-  // Quick add student
   document.getElementById('quickAddBtn').addEventListener('click', quickAddStudent);
-  
-  // Download template
   document.getElementById('downloadTemplateBtn').addEventListener('click', downloadTemplate);
-  
-  // Import students
   document.getElementById('importBtn').addEventListener('click', importStudents);
-  
-  // Remove students
   document.getElementById('removeBtn').addEventListener('click', confirmRemoveStudents);
   document.getElementById('removeGrade').addEventListener('change', loadStudentsForRemoval);
   
-  // Settings
   document.getElementById('saveLanguageBtn').addEventListener('click', saveLanguage);
   document.getElementById('saveTemplatesBtn').addEventListener('click', saveTemplates);
   document.getElementById('resetTemplatesBtn').addEventListener('click', resetTemplates);
   
-  // Send buttons
   document.getElementById('absentSendBtn').addEventListener('click', sendAbsentMessages);
   document.getElementById('testmarksSendBtn').addEventListener('click', sendTestMarks);
   document.getElementById('homeworkSendBtn').addEventListener('click', sendHomework);
   document.getElementById('othermsgSendBtn').addEventListener('click', sendOtherMessage);
   document.getElementById('finalexamSendBtn').addEventListener('click', sendFinalExamMarks);
   
-  // Student entry
   document.querySelectorAll('input[name="studentAttendance"]').forEach(radio => {
     radio.addEventListener('change', toggleAttendanceSection);
   });
   document.getElementById('saveMarksBtn').addEventListener('click', saveStudentMarks);
   
-  // Confirm dialog
   document.getElementById('confirmCancel').addEventListener('click', hideConfirmDialog);
 }
 
@@ -150,13 +134,12 @@ async function callGAS(action, data = {}) {
   }
 }
 
-// ========== LOGIN CHECK ==========
+// ========== LOGIN / SPLASH ==========
 async function checkLogin() {
   const deviceId = getDeviceId();
   
-  // Check if GAS URL is configured
   if (!CONFIG.GAS_URL || CONFIG.GAS_URL === 'YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL') {
-    // Demo mode - show registration
+    hideSplash();
     showScreen('registration');
     loadDemoData();
     return;
@@ -165,6 +148,7 @@ async function checkLogin() {
   showLoading();
   const result = await callGAS('checkDeviceLogin', { deviceId });
   hideLoading();
+  hideSplash();
   
   if (result.success) {
     state.currentUser = result.user;
@@ -175,9 +159,13 @@ async function checkLogin() {
   }
 }
 
+function hideSplash() {
+  const splash = document.getElementById('splash-screen');
+  if (splash) splash.classList.remove('active');
+}
+
 // ========== DEMO DATA ==========
 function loadDemoData() {
-  // Demo districts
   const districts = ['અમદાવાદ', 'રાજકોટ', 'સુરત', 'વડોદરા', 'ભાવનગર'];
   const select = document.getElementById('district');
   districts.forEach(d => {
@@ -199,8 +187,7 @@ function openScreen(screenId) {
   state.screenHistory.push(state.currentScreen);
   showScreen(screenId);
   
-  // Load data based on screen
-  switch(screenId) {
+  switch (screenId) {
     case 'absent':
     case 'testmarks':
     case 'homework':
@@ -227,72 +214,71 @@ function openScreen(screenId) {
 }
 
 function goBack() {
-  const prevScreen = state.screenHistory.pop() || 'dashboard';
-  showScreen(prevScreen);
+  const prev = state.screenHistory.pop() || 'dashboard';
+  showScreen(prev);
 }
 
 function showDashboard() {
   if (state.currentUser) {
     document.getElementById('userName').textContent = state.currentUser.teacherName;
-    document.getElementById('schoolInfo').textContent = 
+    document.getElementById('schoolInfo').textContent =
       state.currentUser.schoolName + ' • DISE: ' + state.currentUser.schoolDISE;
   }
   showScreen('dashboard');
 }
 
-// ========== TAB HANDLING ==========
+// ========== TABS ==========
 function handleTabClick(tab, container) {
   container.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
   tab.classList.add('active');
   state.selectedTab = tab.dataset.tab;
-  
-  // Re-render student list for absent screen
   const screenId = container.closest('.screen').id.replace('-screen', '');
-  if (screenId === 'absent') {
-    renderStudentList('absent');
-  }
+  if (screenId === 'absent') renderStudentList('absent');
 }
 
 // ========== REGISTRATION ==========
 async function registerUser() {
-  const mobile = document.getElementById('mobile').value;
-  const email = document.getElementById('email').value;
-  const dise = document.getElementById('schoolDISE').value;
+  const mobile = document.getElementById('mobile').value.trim();
+  const email = document.getElementById('email').value.trim();
+  const dise = document.getElementById('schoolDISE').value.trim();
   
-  // Validation
   if (mobile.length !== 10) {
     showToast('મોબાઈલ નંબર 10 અંકનો હોવો જોઈએ');
     return;
   }
-  
   if (dise.length !== 11) {
     showToast('DISE Code 11 અંકનો હોવો જોઈએ');
     return;
   }
-  
   if (!email.endsWith('@gmail.com')) {
     showToast('માત્ર Gmail સ્વીકાર્ય છે');
     return;
   }
   
   const data = {
-    teacherName: document.getElementById('teacherName').value,
-    mobile: mobile,
-    email: email,
+    teacherName: document.getElementById('teacherName').value.trim(),
+    mobile,
+    email,
     schoolDISE: dise,
-    schoolName: document.getElementById('schoolName').value,
+    schoolName: document.getElementById('schoolName').value.trim(),
     district: document.getElementById('district').value,
     taluka: document.getElementById('taluka').value,
     city: document.getElementById('city').value,
     deviceId: getDeviceId()
   };
   
-  // Validate all fields
-  for (let key in data) {
-    if (!data[key]) {
+  for (let k in data) {
+    if (!data[k]) {
       showToast('બધી માહિતી ભરો');
       return;
     }
+  }
+  
+  if (!CONFIG.GAS_URL || CONFIG.GAS_URL === 'YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL') {
+    state.currentUser = { ...data, schoolSheetId: 'DEMO_SHEET_ID' };
+    showToast('Demo mode: Registration local છે');
+    showDashboard();
+    return;
   }
   
   showLoading();
@@ -300,7 +286,7 @@ async function registerUser() {
   hideLoading();
   
   if (result.success) {
-    showToast(result.message);
+    showToast(result.message || 'રજિસ્ટ્રેશન સફળ!');
     state.currentUser = {
       ...data,
       schoolSheetId: result.schoolSheetId
@@ -311,8 +297,12 @@ async function registerUser() {
   }
 }
 
-// ========== LOCATION DATA ==========
+// ========== LOCATION ==========
 async function loadDistricts() {
+  if (!CONFIG.GAS_URL || CONFIG.GAS_URL === 'YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL') {
+    loadDemoData();
+    return;
+  }
   const result = await callGAS('getDistricts');
   if (result.success && result.data) {
     const select = document.getElementById('district');
@@ -330,11 +320,19 @@ async function loadTalukas() {
   
   if (!district) return;
   
-  // Demo talukas
-  const talukas = ['તાલુકો 1', 'તાલુકો 2', 'તાલુકો 3'];
-  talukas.forEach(t => {
-    talukaSelect.innerHTML += `<option value="${t}">${t}</option>`;
-  });
+  if (!CONFIG.GAS_URL || CONFIG.GAS_URL === 'YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL') {
+    ['તાલુકો 1', 'તાલુકો 2', 'તાલુકો 3'].forEach(t => {
+      talukaSelect.innerHTML += `<option value="${t}">${t}</option>`;
+    });
+    return;
+  }
+  
+  const result = await callGAS('getTalukas', { district });
+  if (result.success && result.data) {
+    result.data.forEach(t => {
+      talukaSelect.innerHTML += `<option value="${t}">${t}</option>`;
+    });
+  }
 }
 
 async function loadCities() {
@@ -344,22 +342,29 @@ async function loadCities() {
   
   if (!taluka) return;
   
-  // Demo cities
-  const cities = ['ગામ 1', 'ગામ 2', 'ગામ 3'];
-  cities.forEach(c => {
-    citySelect.innerHTML += `<option value="${c}">${c}</option>`;
-  });
+  if (!CONFIG.GAS_URL || CONFIG.GAS_URL === 'YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL') {
+    ['ગામ 1', 'ગામ 2', 'ગામ 3'].forEach(c => {
+      citySelect.innerHTML += `<option value="${c}">${c}</option>`;
+    });
+    return;
+  }
+  
+  const result = await callGAS('getCities', { taluka });
+  if (result.success && result.data) {
+    result.data.forEach(c => {
+      citySelect.innerHTML += `<option value="${c}">${c}</option>`;
+    });
+  }
 }
 
-// ========== GRADE STRIP ==========
+// ========== GRADES & STUDENTS (DEMO) ==========
 function loadGradeStrip(screenId) {
   const strip = document.getElementById(screenId + 'GradeStrip');
   if (!strip) return;
   
-  // Demo grades (in real app, fetch from API)
   const grades = ['ધોરણ - 1', 'ધોરણ - 2', 'ધોરણ - 3'];
-  
   strip.innerHTML = '';
+  
   grades.forEach((grade, index) => {
     const btn = document.createElement('button');
     btn.className = 'grade-btn' + (index === 0 ? ' active' : '');
@@ -380,25 +385,18 @@ function loadGradeStrip(screenId) {
 }
 
 function loadStudentsForScreen(screenId, grade) {
-  // Demo students
   state.students = [
-    { id: '1', name: 'પટેલ હરેશ', mobile: '9876543210', attendance: 'present' },
+    { id: '1', name: 'પટેલ હરेश', mobile: '9876543210', attendance: 'present' },
     { id: '2', name: 'શાહ મહેશ', mobile: '9876543211', attendance: 'present' },
     { id: '3', name: 'દવે રાજેશ', mobile: '9876543212', attendance: 'present' }
   ];
-  
   renderStudentList(screenId);
-  
-  if (screenId === 'homework') {
-    loadHomeworkSubjects();
-  }
+  if (screenId === 'homework') loadHomeworkSubjects();
 }
 
-// ========== STUDENT LIST RENDERING ==========
 function renderStudentList(screenId) {
   const list = document.getElementById(screenId + 'StudentList');
   if (!list) return;
-  
   list.innerHTML = '';
   
   state.students.forEach((student, index) => {
@@ -455,37 +453,27 @@ function renderStudentList(screenId) {
         ${saved ? `<button class="btn-outline" onclick="editStudentMarks('${student.id}')"><span class="material-icons">edit</span></button>` : ''}
       `;
       item.addEventListener('click', (e) => {
-        if (!e.target.closest('button')) {
-          openStudentEntry(student);
-        }
+        if (!e.target.closest('button')) openStudentEntry(student);
       });
     }
     
     list.appendChild(item);
   });
   
-  // Toggle send button visibility for call tab
   const sendBtn = document.getElementById(screenId + 'SendBtn');
   if (sendBtn && screenId === 'absent') {
     sendBtn.style.display = state.selectedTab === 'call' ? 'none' : 'flex';
   }
 }
 
-// ========== ATTENDANCE ==========
 function setAttendance(index, status) {
   state.students[index].attendance = status;
-  
-  const presentBtns = document.querySelectorAll(`.att-btn.present`);
-  const absentBtns = document.querySelectorAll(`.att-btn.absent`);
-  
-  presentBtns[index]?.classList.toggle('active', status === 'present');
-  absentBtns[index]?.classList.toggle('active', status === 'absent');
+  renderStudentList(state.currentScreen);
 }
 
 // ========== MESSAGING ==========
 function sendAbsentMessages() {
   const absentStudents = state.students.filter(s => s.attendance === 'absent');
-  
   if (absentStudents.length === 0) {
     showToast('ગેરહાજર વિદ્યાર્થી પસંદ કરો');
     return;
@@ -493,7 +481,6 @@ function sendAbsentMessages() {
   
   const template = localStorage.getItem('smp_absentTemplate') || 
     'આજે તારીખ ({date}) {name} શાળામાં ગેરહાજર હતા. તો આપનું બાળક રોજ શાળામાં હાજર રહે તેવી નમ્ર વિનંતી, (શ્રી {school}).';
-  
   const date = new Date().toLocaleDateString('gu-IN');
   const schoolName = state.currentUser?.schoolName || 'આપની શાળા';
   
@@ -503,7 +490,6 @@ function sendAbsentMessages() {
         .replace('{date}', date)
         .replace('{name}', student.name)
         .replace('{school}', schoolName);
-      
       if (state.selectedTab === 'sms') {
         window.open(`sms:${student.mobile}?body=${encodeURIComponent(message)}`);
       } else {
@@ -533,7 +519,6 @@ function sendTestMarks() {
     'આજે તારીખ({date}) {subject} ની ટેસ્ટમાં {name} ના માર્ક્સ: {marks}/{total}, (શ્રી {school}).';
   const absentTemplate = localStorage.getItem('smp_testAbsentTemplate') || 
     'આજે તારીખ({date}) {subject} ની ટેસ્ટમાં {name} ગેરહાજર હતા, (શ્રી {school}).';
-  
   const formattedDate = new Date(date).toLocaleDateString('gu-IN');
   const schoolName = state.currentUser?.schoolName || 'આપની શાળા';
   
@@ -541,7 +526,6 @@ function sendTestMarks() {
     setTimeout(() => {
       const marksInput = document.querySelector(`.marks-input[data-index="${index}"]`);
       const marks = marksInput ? marksInput.value : '';
-      
       let message;
       if (student.attendance === 'absent') {
         message = absentTemplate
@@ -558,7 +542,6 @@ function sendTestMarks() {
           .replace('{total}', total)
           .replace('{school}', schoolName);
       }
-      
       if (state.selectedTab === 'sms') {
         window.open(`sms:${student.mobile}?body=${encodeURIComponent(message)}`);
       } else {
@@ -574,7 +557,6 @@ function sendTestMarks() {
 function loadHomeworkSubjects() {
   const container = document.getElementById('homeworkSubjects');
   if (!container) return;
-  
   const subjects = [...CONFIG.SUBJECTS, 'અન્ય'];
   container.innerHTML = '';
   
@@ -587,7 +569,6 @@ function loadHomeworkSubjects() {
       <input type="text" class="subject-input" data-subject="${subject}" placeholder="હોમવર્ક લખો">
       ${subject === 'અન્ય' ? '<input type="text" class="subject-input other-name" placeholder="વિષયનું નામ">' : ''}
     `;
-    
     const checkbox = item.querySelector('.subject-checkbox');
     const input = item.querySelector('.subject-input');
     checkbox.addEventListener('change', () => {
@@ -596,7 +577,6 @@ function loadHomeworkSubjects() {
         item.querySelector('.other-name').classList.toggle('show', checkbox.checked);
       }
     });
-    
     container.appendChild(item);
   });
 }
@@ -605,10 +585,9 @@ function sendHomework() {
   const homeworkData = [];
   document.querySelectorAll('.subject-checkbox:checked').forEach(cb => {
     const subject = cb.dataset.subject;
-    const homework = document.querySelector(`.subject-input[data-subject="${subject}"]`).value;
-    if (homework) {
-      homeworkData.push(`${subject}: ${homework}`);
-    }
+    const hwInput = document.querySelector(`.subject-input[data-subject="${subject}"]`);
+    const homework = hwInput ? hwInput.value : '';
+    if (homework) homeworkData.push(`${subject}: ${homework}`);
   });
   
   if (homeworkData.length === 0) {
@@ -618,7 +597,6 @@ function sendHomework() {
   
   const template = localStorage.getItem('smp_homeworkTemplate') || 
     'આજે તારીખ ({date}) ના રોજ આજનું હોમવર્ક: {subjects}, (શ્રી {school}).';
-  
   const date = new Date().toLocaleDateString('gu-IN');
   const schoolName = state.currentUser?.schoolName || 'આપની શાળા';
   const message = template
@@ -642,12 +620,10 @@ function sendHomework() {
 // ========== OTHER MESSAGE ==========
 function sendOtherMessage() {
   const message = document.getElementById('customMessage').value;
-  
   if (!message) {
     showToast('મેસેજ લખો');
     return;
   }
-  
   state.students.forEach((student, index) => {
     setTimeout(() => {
       if (state.selectedTab === 'sms') {
@@ -657,7 +633,6 @@ function sendOtherMessage() {
       }
     }, index * 1000);
   });
-  
   showToast('મેસેજ મોકલાઈ રહ્યા છે...');
 }
 
@@ -665,14 +640,11 @@ function sendOtherMessage() {
 function openStudentEntry(student) {
   state.screenHistory.push('finalexam');
   showScreen('studententry');
-  
   document.getElementById('studentEntryName').textContent = student.name;
   state.currentStudentForMarks = student;
   
-  // Load subject inputs
   const container = document.getElementById('subjectMarksInputs');
   container.innerHTML = '';
-  
   CONFIG.SUBJECTS.forEach(subject => {
     const savedMarks = state.examMarks[student.id]?.[subject] || '';
     container.innerHTML += `
@@ -682,13 +654,9 @@ function openStudentEntry(student) {
       </div>
     `;
   });
-  
-  // Other subject option
   container.innerHTML += `
     <div class="subject-marks-row">
-      <label>
-        <input type="checkbox" id="otherSubjectCheck"> અન્ય
-      </label>
+      <label><input type="checkbox" id="otherSubjectCheck"> અન્ય</label>
     </div>
     <div id="otherSubjectFields" style="display:none;">
       <div class="subject-marks-row">
@@ -700,8 +668,7 @@ function openStudentEntry(student) {
       </div>
     </div>
   `;
-  
-  document.getElementById('otherSubjectCheck')?.addEventListener('change', (e) => {
+  document.getElementById('otherSubjectCheck').addEventListener('change', (e) => {
     document.getElementById('otherSubjectFields').style.display = e.target.checked ? 'block' : 'none';
   });
 }
@@ -714,7 +681,6 @@ function toggleAttendanceSection() {
 function saveStudentMarks() {
   const student = state.currentStudentForMarks;
   if (!student) return;
-  
   const attendance = document.querySelector('input[name="studentAttendance"]:checked').value;
   
   if (attendance === 'absent') {
@@ -722,28 +688,24 @@ function saveStudentMarks() {
   } else {
     const marks = {};
     document.querySelectorAll('#subjectMarksInputs input[data-subject]').forEach(input => {
-      if (input.value) {
-        marks[input.dataset.subject] = input.value;
-      }
+      if (input.value) marks[input.dataset.subject] = input.value;
     });
     marks.total = document.getElementById('examTotalMarks').value;
+    const otherName = document.getElementById('otherSubjectNameExam').value;
+    const otherMarks = document.getElementById('otherSubjectMarks').value;
+    if (otherName && otherMarks) marks[otherName] = otherMarks;
     state.examMarks[student.id] = marks;
   }
   
-  // Save to localStorage
   localStorage.setItem('smp_examMarks_' + state.currentGrade, JSON.stringify(state.examMarks));
-  
   showToast('માર્ક્સ સેવ થયા!');
   goBack();
-  
-  // Refresh list
   setTimeout(() => renderStudentList('finalexam'), 100);
 }
 
 function sendFinalExamMarks() {
   const savedCount = Object.keys(state.examMarks).length;
   const status = document.getElementById('examStatus');
-  
   if (savedCount < state.students.length) {
     status.textContent = `${savedCount}/${state.students.length} વિદ્યાર્થીઓના માર્ક્સ સેવ થયા. બાકીના પણ સેવ કરો.`;
     showToast('પહેલા બધા વિદ્યાર્થીઓના માર્ક્સ સેવ કરો');
@@ -754,14 +716,12 @@ function sendFinalExamMarks() {
     'વિદ્યાર્થી: {name} નું પ્રથમ સત્રાંત પરીક્ષાનું પરિણામ: {marks}, (શ્રી {school}).';
   const absentTemplate = localStorage.getItem('smp_finalAbsentTemplate') || 
     'વિદ્યાર્થી: {name} પ્રથમ સત્રાંત પરીક્ષામાં ગેરહાજર હતા, (શ્રી {school}).';
-  
   const schoolName = state.currentUser?.schoolName || 'આપની શાળા';
   
   state.students.forEach((student, index) => {
     setTimeout(() => {
       const marks = state.examMarks[student.id];
       let message;
-      
       if (marks?.absent) {
         message = absentTemplate
           .replace('{name}', student.name)
@@ -771,13 +731,11 @@ function sendFinalExamMarks() {
           .filter(([key]) => key !== 'total' && key !== 'absent')
           .map(([subject, mark]) => `${subject}: ${mark}/${marks.total || '100'}`)
           .join(', ');
-        
         message = template
           .replace('{name}', student.name)
           .replace('{marks}', marksStr)
           .replace('{school}', schoolName);
       }
-      
       if (state.selectedTab === 'sms') {
         window.open(`sms:${student.mobile}?body=${encodeURIComponent(message)}`);
       } else {
@@ -792,12 +750,9 @@ function sendFinalExamMarks() {
 // ========== STUDENT MANAGEMENT ==========
 function initGradeDropdowns() {
   const gradeOptions = CONFIG.GRADES.map(g => `<option value="${g}">${g}</option>`).join('');
-  
   ['quickStudentGrade', 'importGrade', 'removeGrade'].forEach(id => {
     const select = document.getElementById(id);
-    if (select) {
-      select.innerHTML = `<option value="">ધોરણ પસંદ કરો</option>${gradeOptions}`;
-    }
+    if (select) select.innerHTML = `<option value="">ધોરણ પસંદ કરો</option>${gradeOptions}`;
   });
 }
 
@@ -805,18 +760,14 @@ function quickAddStudent() {
   const name = document.getElementById('quickStudentName').value;
   const mobile = document.getElementById('quickStudentMobile').value;
   const grade = document.getElementById('quickStudentGrade').value;
-  
   if (!name || !mobile || !grade) {
     showToast('બધી માહિતી ભરો');
     return;
   }
-  
   if (mobile.length !== 10) {
     showToast('મોબાઈલ નંબર 10 અંકનો હોવો જોઈએ');
     return;
   }
-  
-  // In real app, call API
   showToast('વિદ્યાર્થી ઉમેરાયો! (Demo)');
   document.getElementById('quickStudentName').value = '';
   document.getElementById('quickStudentMobile').value = '';
@@ -835,32 +786,26 @@ function downloadTemplate() {
 function importStudents() {
   const file = document.getElementById('studentFile').files[0];
   const grade = document.getElementById('importGrade').value;
-  
   if (!file || !grade) {
     showToast('ફાઈલ અને ધોરણ પસંદ કરો');
     return;
   }
-  
   showToast('વિદ્યાર્થીઓ આયાત થયા! (Demo)');
 }
 
 function loadGradesForRemoval() {
-  // Already initialized in initGradeDropdowns
+  // dropdown પહેલેથી initGradeDropdowns માં ભરાઈ જાય છે
 }
 
 function loadStudentsForRemoval() {
   const grade = document.getElementById('removeGrade').value;
   if (!grade) return;
-  
   const list = document.getElementById('removeStudentList');
   list.innerHTML = '';
-  
-  // Demo students
   const students = [
     { id: '1', name: 'પટેલ હરેશ', mobile: '9876543210' },
     { id: '2', name: 'શાહ મહેશ', mobile: '9876543211' }
   ];
-  
   students.forEach(student => {
     list.innerHTML += `
       <div class="student-item">
@@ -876,12 +821,10 @@ function loadStudentsForRemoval() {
 
 function confirmRemoveStudents() {
   const checkboxes = document.querySelectorAll('#removeStudentList .student-checkbox:checked');
-  
   if (checkboxes.length === 0) {
     showToast('વિદ્યાર્થીઓ પસંદ કરો');
     return;
   }
-  
   showConfirmDialog(
     'શું ખરેખર આ વિદ્યાર્થીઓને ડિલીટ કરવા માંગો છો? એકવાર ડિલીટ થયા પછી પાછા લાવી શકાશે નહીં.',
     () => {
@@ -901,13 +844,10 @@ function loadSavedTemplates() {
     finalExamTemplate: 'વિદ્યાર્થી: {name} નું પ્રથમ સત્રાંત પરીક્ષાનું પરિણામ: {marks}, (શ્રી {school}).',
     finalAbsentTemplate: 'વિદ્યાર્થી: {name} પ્રથમ સત્રાંત પરીક્ષામાં ગેરહાજર હતા, (શ્રી {school}).'
   };
-  
   Object.keys(templates).forEach(key => {
     const saved = localStorage.getItem('smp_' + key);
     const textarea = document.getElementById(key);
-    if (textarea) {
-      textarea.value = saved || templates[key];
-    }
+    if (textarea) textarea.value = saved || templates[key];
   });
 }
 
@@ -920,50 +860,40 @@ function saveLanguage() {
 function saveTemplates() {
   const templateIds = ['absentTemplate', 'marksTemplate', 'testAbsentTemplate', 
                        'homeworkTemplate', 'finalExamTemplate', 'finalAbsentTemplate'];
-  
   templateIds.forEach(id => {
     const textarea = document.getElementById(id);
-    if (textarea) {
-      localStorage.setItem('smp_' + id, textarea.value);
-    }
+    if (textarea) localStorage.setItem('smp_' + id, textarea.value);
   });
-  
   showToast('Templates સેવ થયા!');
 }
 
 function resetTemplates() {
   const templateIds = ['absentTemplate', 'marksTemplate', 'testAbsentTemplate', 
                        'homeworkTemplate', 'finalExamTemplate', 'finalAbsentTemplate'];
-  
   templateIds.forEach(id => localStorage.removeItem('smp_' + id));
   loadSavedTemplates();
   showToast('Templates રીસેટ થયા!');
 }
 
-// ========== SUBJECTS ==========
+// ========== SUBJECTS / HELPER / CONTACT ==========
 function loadSubjects() {
   const select = document.getElementById('testSubject');
-  if (select) {
-    select.innerHTML = '<option value="">વિષય પસંદ કરો</option>';
-    CONFIG.SUBJECTS.forEach(s => {
-      select.innerHTML += `<option value="${s}">${s}</option>`;
-    });
-  }
+  if (!select) return;
+  select.innerHTML = '<option value="">વિષય પસંદ કરો</option>';
+  CONFIG.SUBJECTS.forEach(s => {
+    select.innerHTML += `<option value="${s}">${s}</option>`;
+  });
 }
 
-// ========== TEACHER HELPER ==========
 function loadTeacherHelper() {
   const list = document.getElementById('helperList');
   list.innerHTML = '';
-  
-  // Demo helper links
   const helpers = [
     { title: 'SAS Gujarat', link: 'https://sas.gujarat.gov.in' },
     { title: 'SSA Gujarat', link: 'https://ssagujarat.org' },
     { title: 'GCERT', link: 'https://gcert.gujarat.gov.in' },
     { title: 'Diksha App', link: 'https://diksha.gov.in' }
   ];
-  
   helpers.forEach(item => {
     list.innerHTML += `
       <a class="helper-item" href="${item.link}" target="_blank">
@@ -974,12 +904,9 @@ function loadTeacherHelper() {
   });
 }
 
-// ========== CONTACT ==========
 function loadContactInfo() {
-  // Demo contact info
   document.getElementById('emailSupport').href = 'mailto:support@example.com';
   document.getElementById('whatsappSupport').href = 'https://wa.me/919876543210';
-  
   const socialLinks = document.getElementById('socialLinks');
   socialLinks.innerHTML = `
     <a href="https://facebook.com" target="_blank"><img src="https://cdn-icons-png.flaticon.com/32/733/733547.png" alt="Facebook"></a>
@@ -988,7 +915,7 @@ function loadContactInfo() {
   `;
 }
 
-// ========== UTILITIES ==========
+// ========== UI UTILITIES ==========
 function showLoading() {
   document.getElementById('loadingOverlay').classList.add('show');
 }
@@ -1007,7 +934,6 @@ function showToast(message) {
 function showConfirmDialog(message, onConfirm) {
   document.getElementById('confirmMessage').textContent = message;
   document.getElementById('confirmDialog').classList.add('show');
-  
   document.getElementById('confirmOk').onclick = () => {
     hideConfirmDialog();
     onConfirm();
