@@ -2,7 +2,7 @@
 // CONFIGURATION
 // ===============================
 const CONFIG = {
-  GAS_URL: 'https://script.google.com/macros/s/AKfycbxfIISpICADecHgCPm3ltthCS07KSnrvFxYmSdy3Qm-Qtfh2K1vfCy3lKUujbx_KL2M/exec',
+  GAS_URL: 'https://script.google.com/macros/s/AKfycby6LPHZMt4AVDkSXELK_A9r7gIy1sQ2MwITYipaVOuccXJCQwvCcDCmMGRiZIqBBcmt/exec',
   GRADES: [],
   SUBJECTS: []
 };
@@ -1180,3 +1180,4 @@ function showConfirmDialog(message, onConfirm) {
 function hideConfirmDialog() {
   document.getElementById('confirmDialog').classList.remove('show');
 }
+
