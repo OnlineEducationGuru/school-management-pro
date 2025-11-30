@@ -5,27 +5,24 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="theme-color" content="#4F46E5">
   <meta name="description" content="School Management Pro - શાળા વ્યવસ્થાપન એપ">
-  
-  <!-- PWA -->
-  <link rel="manifest" href="manifest.json">
+
+  <link rel="manifest" href="./manifest.json">
   <link rel="apple-touch-icon" href="icons/icon-192.png">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  
+
   <title>School Management Pro</title>
-  
-  <!-- Google Fonts -->
+
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Gujarati:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-  
-  <!-- CSS -->
+
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <div id="app">
-    
+
     <!-- Splash Screen -->
-    <div id="splash-screen" class="screen active">
+    <div id="splash-screen" class="screen">
       <div class="splash-content">
         <div class="app-icon">
           <span class="material-icons">school</span>
@@ -88,7 +85,7 @@
       </div>
     </div>
 
-    <!-- Main Dashboard -->
+    <!-- Dashboard Screen -->
     <div id="dashboard-screen" class="screen">
       <div class="dashboard-header">
         <div class="app-title">School Management Pro</div>
@@ -149,10 +146,12 @@
         <button class="tab" data-tab="whatsapp">WhatsApp</button>
         <button class="tab" data-tab="call">Call</button>
       </div>
+      <div class="grade-strip" id="absentGradeStrip"></div>
       <div class="student-list" id="absentStudentList"></div>
       <div class="bottom-section">
-        <button class="btn-send" id="absentSendBtn"><span class="material-icons">send</span> મેસેજ મોકલો</button>
-        <div class="grade-strip" id="absentGradeStrip"></div>
+        <button class="btn-send" id="absentSendBtn">
+          <span class="material-icons">send</span> મેસેજ મોકલો
+        </button>
       </div>
     </div>
 
@@ -167,14 +166,18 @@
         <button class="tab" data-tab="whatsapp">WhatsApp</button>
       </div>
       <div class="marks-header">
-        <select id="testSubject"><option value="">વિષય પસંદ કરો</option></select>
+        <select id="testSubject">
+          <option value="">વિષય પસંદ કરો</option>
+        </select>
         <input type="date" id="testDate">
         <input type="number" id="totalMarks" placeholder="કુલ માર્ક્સ">
       </div>
+      <div class="grade-strip" id="testmarksGradeStrip"></div>
       <div class="student-list" id="testmarksStudentList"></div>
       <div class="bottom-section">
-        <button class="btn-send" id="testmarksSendBtn"><span class="material-icons">send</span> માર્ક્સ મોકલો</button>
-        <div class="grade-strip" id="testmarksGradeStrip"></div>
+        <button class="btn-send" id="testmarksSendBtn">
+          <span class="material-icons">send</span> માર્ક્સ મોકલો
+        </button>
       </div>
     </div>
 
@@ -188,10 +191,12 @@
         <button class="tab active" data-tab="sms">SMS</button>
         <button class="tab" data-tab="whatsapp">WhatsApp</button>
       </div>
+      <div class="grade-strip" id="homeworkGradeStrip"></div>
       <div class="homework-subjects" id="homeworkSubjects"></div>
       <div class="bottom-section">
-        <button class="btn-send" id="homeworkSendBtn"><span class="material-icons">send</span> હોમવર્ક મોકલો</button>
-        <div class="grade-strip" id="homeworkGradeStrip"></div>
+        <button class="btn-send" id="homeworkSendBtn">
+          <span class="material-icons">send</span> હોમવર્ક મોકલો
+        </button>
       </div>
     </div>
 
@@ -205,12 +210,14 @@
         <button class="tab active" data-tab="sms">SMS</button>
         <button class="tab" data-tab="whatsapp">WhatsApp</button>
       </div>
+      <div class="grade-strip" id="othermsgGradeStrip"></div>
       <div class="message-box">
         <textarea id="customMessage" placeholder="અહીં મેસેજ લખો..." rows="5"></textarea>
       </div>
       <div class="bottom-section">
-        <button class="btn-send" id="othermsgSendBtn"><span class="material-icons">send</span> મેસેજ મોકલો</button>
-        <div class="grade-strip" id="othermsgGradeStrip"></div>
+        <button class="btn-send" id="othermsgSendBtn">
+          <span class="material-icons">send</span> મેસેજ મોકલો
+        </button>
       </div>
     </div>
 
@@ -225,10 +232,12 @@
         <button class="tab" data-tab="whatsapp">WhatsApp</button>
       </div>
       <div class="exam-status" id="examStatus"></div>
+      <div class="grade-strip" id="finalexamGradeStrip"></div>
       <div class="student-list" id="finalexamStudentList"></div>
       <div class="bottom-section">
-        <button class="btn-send" id="finalexamSendBtn"><span class="material-icons">send</span> બધાને માર્ક્સ મોકલો</button>
-        <div class="grade-strip" id="finalexamGradeStrip"></div>
+        <button class="btn-send" id="finalexamSendBtn">
+          <span class="material-icons">send</span> બધાને માર્ક્સ મોકલો
+        </button>
       </div>
     </div>
 
@@ -257,7 +266,8 @@
         </div>
       </div>
       <button class="btn-primary save-marks-btn" id="saveMarksBtn">
-        <span class="material-icons">save</span> માર્ક્સ સેવ કરો
+        <span class="material-icons">save</span>
+        માર્ક્સ સેવ કરો
       </button>
     </div>
 
@@ -282,10 +292,13 @@
             <input type="tel" id="quickStudentMobile" placeholder="મોબાઈલ નંબર" maxlength="10">
           </div>
           <div class="input-group">
-            <select id="quickStudentGrade"></select>
+            <select id="quickStudentGrade">
+              <option value="">ધોરણ પસંદ કરો</option>
+            </select>
           </div>
           <button class="btn-primary" id="quickAddBtn">
-            <span class="material-icons">add</span> Add Student
+            <span class="material-icons">add</span>
+            Add Student
           </button>
         </div>
         
@@ -294,20 +307,21 @@
           <div class="template-download">
             <p>Excel Template</p>
             <button class="btn-outline" id="downloadTemplateBtn">
-              <span class="material-icons">download</span> Click Here
+              <span class="material-icons">download</span>
+              Click Here
             </button>
-            <small>Excel ડાઉનલોડ કરો અને તેમાં વિદ્યાર્થીઓના નામ નાખીને અપલોડ કરો</small>
+            <small>Excel ડાઉનલોડ કરો અને તેમાં વિદ્યાર્થીઓના નામ, mobile અને દરેક sheet માં grade મુજબ data નાખીને અપલોડ કરો</small>
           </div>
           <div class="file-upload" id="fileUploadArea">
             <span class="material-icons">cloud_upload</span>
-            <p>ફાઈલ અહીં ડ્રોપ કરો અથવા ક્લિક કરો</p>
-            <input type="file" id="studentFile" accept=".xlsx,.xls,.csv">
+            <p id="fileUploadText">ફાઈલ અહીં ડ્રોપ કરો અથવા ક્લિક કરો</p>
+            <input type="file" id="studentFile" accept=".xlsx,.xls" style="display:none;">
           </div>
           <div class="import-options">
             <label class="radio-option">
               <input type="radio" name="importOption" value="replace">
               <span>Replace All Students</span>
-              <small>અગાઉના બધા વિદ્યાર્થીઓ દૂર કરી નવા ઉમેરો</small>
+              <small>અગાઉના બધાં વિદ્યાર્થીઓ દૂર કરી નવા ઉમેરો</small>
             </label>
             <label class="radio-option">
               <input type="radio" name="importOption" value="add" checked>
@@ -315,11 +329,9 @@
               <small>અગાઉના વિદ્યાર્થીઓ રાખીને નવા ઉમેરો</small>
             </label>
           </div>
-          <div class="input-group">
-            <select id="importGrade"></select>
-          </div>
           <button class="btn-primary" id="importBtn">
-            <span class="material-icons">publish</span> Import
+            <span class="material-icons">publish</span>
+            Import
           </button>
         </div>
       </div>
@@ -327,11 +339,14 @@
       <div id="removeSection" class="student-section" style="display:none;">
         <div class="section-card">
           <div class="input-group">
-            <select id="removeGrade"></select>
+            <select id="removeGrade">
+              <option value="">ધોરણ પસંદ કરો</option>
+            </select>
           </div>
           <div class="student-list" id="removeStudentList"></div>
           <button class="btn-danger" id="removeBtn">
-            <span class="material-icons">delete</span> Remove Selected Students
+            <span class="material-icons">delete</span>
+            Remove Selected Students
           </button>
         </div>
       </div>
@@ -352,11 +367,23 @@
         <h3>Select App Language</h3>
         <p>બધા સંદેશાઓ આ ભાષામાં મોકલાશે</p>
         <div class="language-options">
-          <label class="radio-option"><input type="radio" name="language" value="gujarati" checked><span>ગુજરાતી</span></label>
-          <label class="radio-option"><input type="radio" name="language" value="english"><span>English</span></label>
-          <label class="radio-option"><input type="radio" name="language" value="hindi"><span>हिन्दी</span></label>
+          <label class="radio-option">
+            <input type="radio" name="language" value="gujarati" checked>
+            <span>ગુજરાતી</span>
+          </label>
+          <label class="radio-option">
+            <input type="radio" name="language" value="english">
+            <span>English</span>
+          </label>
+          <label class="radio-option">
+            <input type="radio" name="language" value="hindi">
+            <span>हिन्दी</span>
+          </label>
         </div>
-        <button class="btn-primary" id="saveLanguageBtn"><span class="material-icons">save</span> Save Language</button>
+        <button class="btn-primary" id="saveLanguageBtn">
+          <span class="material-icons">save</span>
+          Save Language
+        </button>
       </div>
       
       <div id="messageSection" class="settings-section" style="display:none;">
@@ -385,8 +412,14 @@
           <textarea id="finalAbsentTemplate">વિદ્યાર્થી: {name} પ્રથમ સત્રાંત પરીક્ષામાં ગેરહાજર હતા, (શ્રી {school}).</textarea>
         </div>
         <div class="template-actions">
-          <button class="btn-outline" id="resetTemplatesBtn"><span class="material-icons">refresh</span> Reset</button>
-          <button class="btn-primary" id="saveTemplatesBtn"><span class="material-icons">save</span> Save</button>
+          <button class="btn-outline" id="resetTemplatesBtn">
+            <span class="material-icons">refresh</span>
+            Reset
+          </button>
+          <button class="btn-primary" id="saveTemplatesBtn">
+            <span class="material-icons">save</span>
+            Save
+          </button>
         </div>
       </div>
     </div>
@@ -407,8 +440,14 @@
         <h2>Contact Us</h2>
       </div>
       <div class="contact-options">
-        <a class="contact-card" id="emailSupport"><span class="material-icons">email</span><span>Email Support</span></a>
-        <a class="contact-card" id="whatsappSupport"><span class="material-icons">chat</span><span>WhatsApp Support</span></a>
+        <a class="contact-card" id="emailSupport">
+          <span class="material-icons">email</span>
+          <span>Email Support</span>
+        </a>
+        <a class="contact-card" id="whatsappSupport">
+          <span class="material-icons">chat</span>
+          <span>WhatsApp Support</span>
+        </a>
       </div>
       <div class="social-section">
         <h3>Follow Us</h3>
@@ -418,15 +457,12 @@
 
   </div>
 
-  <!-- Toast -->
   <div id="toast" class="toast"></div>
   
-  <!-- Loading -->
   <div id="loadingOverlay" class="loading-overlay">
     <div class="spinner"></div>
   </div>
 
-  <!-- Confirm Dialog -->
   <div id="confirmDialog" class="dialog-overlay">
     <div class="dialog">
       <p id="confirmMessage"></p>
